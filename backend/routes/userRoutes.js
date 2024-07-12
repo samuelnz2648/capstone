@@ -5,6 +5,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
+const authMiddleware = require("../middleware/authMiddleware");
 
 // Helper function for input validation
 const validateInput = (username, password) => {
@@ -69,6 +70,20 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Server error during login." });
+  }
+});
+
+router.post("/refresh-token", authMiddleware, async (req, res) => {
+  try {
+    const token = jwt.sign(
+      { userId: req.user.userId, username: req.user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+    res.json({ token });
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    res.status(500).json({ message: "Server error during token refresh." });
   }
 });
 

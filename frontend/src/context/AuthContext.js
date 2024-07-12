@@ -1,11 +1,9 @@
 // frontend/src/context/AuthContext.js
 import React, { createContext, useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import jwtDecode from "jwt-decode";
+import api, { setAuthToken } from "../utils/api";
 
 export const AuthContext = createContext();
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
 
 export const AuthProvider = ({ children }) => {
   const [authToken, setAuthToken] = useState(() =>
@@ -18,22 +16,16 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const setAuthHeader = (token) => {
-      if (token) {
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      } else {
-        delete axios.defaults.headers.common["Authorization"];
-      }
-    };
-
-    setAuthHeader(authToken);
+    if (authToken) {
+      setAuthToken(authToken);
+    }
   }, [authToken]);
 
   const login = useCallback(async (username, password) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.post(`${API_URL}/users/login`, {
+      const response = await api.post("/users/login", {
         username,
         password,
       });
@@ -57,14 +49,14 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("username");
     setAuthToken(null);
     setUsername(null);
-    delete axios.defaults.headers.common["Authorization"];
+    setAuthToken(null);
   }, []);
 
   const clearError = useCallback(() => setError(null), []);
 
   const refreshToken = useCallback(async () => {
     try {
-      const response = await axios.post(`${API_URL}/users/refresh-token`);
+      const response = await api.post("/users/refresh-token");
       const { token } = response.data;
       localStorage.setItem("authToken", token);
       setAuthToken(token);
