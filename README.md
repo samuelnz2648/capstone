@@ -10,7 +10,7 @@
 - [API Endpoints](#api-endpoints)
 - [Testing](#testing)
 - [Folder Structure](#folder-structure)
-- [Database Schema](#Database-Schema)
+- [Database Schema](#database-Schema)
 
 ## Introduction
 
