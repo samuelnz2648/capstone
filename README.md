@@ -1,4 +1,3 @@
-
 # Todo List Application
 
 ## Table of Contents
@@ -11,6 +10,8 @@
 - [API Endpoints](#api-endpoints)
 - [Testing](#testing)
 - [Folder Structure](#folder-structure)
+- [Database Schema](#Database-Schema)
+- [License](#license)
 
 ## Introduction
 
@@ -59,6 +60,7 @@ This Todo List application is a full-stack project developed to manage tasks eff
    \`\`\`
 
 2. **Backend Setup:**
+
    - Navigate to the backend directory:
      \`\`\`bash
      cd backend
@@ -102,10 +104,12 @@ This Todo List application is a full-stack project developed to manage tasks eff
 ## Usage
 
 1. **Register a new user:**
+
    - Open your browser and go to \`http://localhost:3000\`
    - Click on the "Register" button and create a new user account
 
 2. **Login:**
+
    - After registering, login with your credentials
 
 3. **Manage Todo Lists:**
@@ -118,7 +122,6 @@ This Todo List application is a full-stack project developed to manage tasks eff
 - **Register a new user**
   - \`POST /api/users/register\`
   - Request body: \`{ "username": "example", "password": "password123" }\`
-  
 - **Login a user**
   - \`POST /api/users/login\`
   - Request body: \`{ "username": "example", "password": "password123" }\`
@@ -128,20 +131,16 @@ This Todo List application is a full-stack project developed to manage tasks eff
 - **Get all todo lists**
   - \`GET /api/todos\`
   - Headers: \`Authorization: Bearer <token>\`
-  
 - **Get a specific todo list**
   - \`GET /api/todos/:todoListName\`
   - Headers: \`Authorization: Bearer <token>\`
-  
 - **Create a new todo list**
   - \`POST /api/todos/:todoListName\`
   - Headers: \`Authorization: Bearer <token>\`
-  
 - **Update a todo list**
   - \`PUT /api/todos/:todoListName\`
   - Headers: \`Authorization: Bearer <token>\`
   - Request body: \`{ "todos": [{ "task": "New Task", "completed": false }] }\`
-  
 - **Delete a todo list**
   - \`DELETE /api/todos/:todoListName\`
   - Headers: \`Authorization: Bearer <token>\`
@@ -169,22 +168,53 @@ This Todo List application is a full-stack project developed to manage tasks eff
 \`\`\`
 todo-list-app/
 ├── backend/
-│   ├── __tests__/
-│   ├── config/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── .env
-│   ├── package.json
-│   └── server.js
+│ ├── **tests**/
+│ ├── config/
+│ ├── middleware/
+│ ├── models/
+│ ├── routes/
+│ ├── .env
+│ ├── package.json
+│ └── server.js
 ├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── utils/
-│   │   ├── App.js
-│   │   ├── index.js
-│   ├── .env
-│   ├── package.json
+│ ├── src/
+│ │ ├── components/
+│ │ ├── context/
+│ │ ├── utils/
+│ │ ├── App.js
+│ │ ├── index.js
+│ ├── .env
+│ ├── package.json
 ├── README.md
 \`\`\`
+
+## Database Schema
+
+To set up the MySQL database for this project, execute the following SQL commands:
+
+```sql
+CREATE DATABASE todo_app;
+
+USE todo_app;
+
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE todo_lists (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  user_id INT,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE todos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  task VARCHAR(255) NOT NULL,
+  completed BOOLEAN DEFAULT FALSE,
+  todo_list_id INT,
+  FOREIGN KEY (todo_list_id) REFERENCES todo_lists(id)
+);
+```
