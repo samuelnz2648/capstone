@@ -9,7 +9,6 @@ const LoginPage = () => {
   const { login } = useContext(AuthContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,7 +24,7 @@ const LoginPage = () => {
     }
 
     try {
-      await login(username, password, rememberMe);
+      await login(username, password);
       navigate("/dashboard");
     } catch (error) {
       setError(
@@ -61,14 +60,6 @@ const LoginPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
                 required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formRememberMe">
-              <Form.Check
-                type="checkbox"
-                label="Remember me"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
               />
             </Form.Group>
             <Button

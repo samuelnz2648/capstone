@@ -6,7 +6,7 @@ import api, { setAuthToken } from "../utils/api";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [authToken, setAuthToken] = useState(() =>
+  const [authToken, setAuthTokenState] = useState(() =>
     localStorage.getItem("authToken")
   );
   const [username, setUsername] = useState(() =>
@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
       const { token } = response.data;
       localStorage.setItem("authToken", token);
       localStorage.setItem("username", username);
+      setAuthTokenState(token);
       setAuthToken(token);
       setUsername(username);
     } catch (error) {
@@ -47,9 +48,9 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("username");
+    setAuthTokenState(null);
     setAuthToken(null);
     setUsername(null);
-    setAuthToken(null);
   }, []);
 
   const clearError = useCallback(() => setError(null), []);
@@ -59,6 +60,7 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post("/users/refresh-token");
       const { token } = response.data;
       localStorage.setItem("authToken", token);
+      setAuthTokenState(token);
       setAuthToken(token);
     } catch (error) {
       console.error("Failed to refresh token:", error);
