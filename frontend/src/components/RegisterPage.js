@@ -1,6 +1,5 @@
 // frontend/src/components/RegisterPage.js
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -11,8 +10,7 @@ import {
   Alert,
   InputGroup,
 } from "react-bootstrap";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+import api from "../utils/api";
 
 const PasswordStrengthIndicator = ({ password }) => {
   const getStrength = (password) => {
@@ -78,7 +76,7 @@ const RegisterPage = () => {
     }
 
     try {
-      await axios.post(`${API_URL}/users/register`, { username, password });
+      await api.post("/users/register", { username, password });
       navigate("/");
     } catch (error) {
       if (error.response && error.response.status === 400) {
