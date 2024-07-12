@@ -12,7 +12,7 @@ const TodoList = memo(
         if (sortBy === "completed") {
           return a.completed === b.completed ? 0 : a.completed ? 1 : -1;
         }
-        // Add more sorting options here if needed
+
         return 0;
       });
     }, [todos, sortBy]);
@@ -33,9 +33,9 @@ const TodoList = memo(
       <ListGroup aria-label="Todo list">
         {sortedTodos.length > 0 ? (
           <List
-            height={400} // Adjust based on your needs
+            height={400}
             itemCount={sortedTodos.length}
-            itemSize={50} // Adjust based on your TodoItem height
+            itemSize={50}
             width="100%"
           >
             {Row}
@@ -68,6 +68,6 @@ TodoList.defaultProps = {
   sortBy: "default",
 };
 
-TodoList.displayName = "TodoList"; // Useful for debugging
+TodoList.displayName = "TodoList";
 
 export default TodoList;

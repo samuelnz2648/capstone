@@ -8,7 +8,7 @@ const ProtectedRoute = ({ children }) => {
   const location = useLocation();
 
   if (isLoading) {
-    return <div>Loading...</div>; // Or a more sophisticated loading component
+    return <div>Loading...</div>;
   }
 
   if (!authToken) {
