@@ -1,23 +1,39 @@
 // frontend/src/components/TodoPage.js
-import React, { useState, useContext, useCallback } from "react";
+import React, { useState, useContext, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import TodoList from "./TodoList";
 import { TodoContext } from "../context/TodoContext";
 import { AuthContext } from "../context/AuthContext";
-import { Container, Form, Button, Row, Col, Alert } from "react-bootstrap";
+import {
+  Container,
+  Form,
+  Button,
+  Row,
+  Col,
+  Alert,
+  Modal,
+  Spinner,
+} from "react-bootstrap";
+import { debounce } from "lodash";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 const TodoPage = () => {
   const [task, setTask] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [todoToDelete, setTodoToDelete] = useState(null);
+  const [sortBy, setSortBy] = useState("default");
+  const [filterCompleted, setFilterCompleted] = useState("all");
   const { todos, setTodos, todoListName } = useContext(TodoContext);
   const { logout, authToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const updateTodoList = useCallback(
-    async (newTodos) => {
+    debounce(async (newTodos) => {
+      setIsLoading(true);
       try {
         await axios.put(
           `${API_URL}/todos/${encodeURIComponent(todoListName)}`,
@@ -31,10 +47,20 @@ const TodoPage = () => {
           error.response?.data || error.message
         );
         setError("Failed to update todo list. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
-    },
+    }, 500),
     [authToken, todoListName, setTodos]
   );
+
+  const filteredTodos = useMemo(() => {
+    return todos.filter((todo) => {
+      if (filterCompleted === "completed") return todo.completed;
+      if (filterCompleted === "active") return !todo.completed;
+      return true;
+    });
+  }, [todos, filterCompleted]);
 
   const handleAddTodo = async (event) => {
     event.preventDefault();
@@ -53,8 +79,14 @@ const TodoPage = () => {
   };
 
   const handleDeleteTodo = async (index) => {
-    const newTodos = todos.filter((_, i) => i !== index);
+    setTodoToDelete(index);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteTodo = async () => {
+    const newTodos = todos.filter((_, i) => i !== todoToDelete);
     await updateTodoList(newTodos);
+    setShowDeleteModal(false);
   };
 
   const handleCompleteTodo = async (index) => {
@@ -96,12 +128,40 @@ const TodoPage = () => {
               Add Todo
             </Button>
           </Form>
-          <TodoList
-            todos={todos}
-            updateTodo={handleUpdateTodo}
-            deleteTodo={handleDeleteTodo}
-            completeTodo={handleCompleteTodo}
-          />
+          <Form.Group className="mb-3">
+            <Form.Label>Sort By</Form.Label>
+            <Form.Select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="default">Default</option>
+              <option value="completed">Completed</option>
+            </Form.Select>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Filter</Form.Label>
+            <Form.Select
+              value={filterCompleted}
+              onChange={(e) => setFilterCompleted(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+            </Form.Select>
+          </Form.Group>
+          {isLoading ? (
+            <Spinner animation="border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          ) : (
+            <TodoList
+              todos={filteredTodos}
+              updateTodo={handleUpdateTodo}
+              deleteTodo={handleDeleteTodo}
+              completeTodo={handleCompleteTodo}
+              sortBy={sortBy}
+            />
+          )}
           <Row className="mt-4">
             <Col>
               <Button
@@ -131,6 +191,21 @@ const TodoPage = () => {
       >
         Logout
       </Button>
+
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this todo?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmDeleteTodo}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

@@ -1,5 +1,5 @@
 // frontend/src/context/TodoContext.js
-import React, { createContext, useReducer, useCallback } from "react";
+import React, { createContext, useReducer, useCallback, useMemo } from "react";
 import todoReducer, { initialState } from "./TodoReducer";
 
 export const TodoContext = createContext();
@@ -31,19 +31,46 @@ export const TodoProvider = ({ children }) => {
     dispatch({ type: "TOGGLE_TODO", payload: id });
   }, []);
 
+  const setError = useCallback((error) => {
+    dispatch({ type: "SET_ERROR", payload: error });
+  }, []);
+
+  const clearError = useCallback(() => {
+    dispatch({ type: "CLEAR_ERROR" });
+  }, []);
+
+  const setLoading = useCallback((isLoading) => {
+    dispatch({ type: "SET_LOADING", payload: isLoading });
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({
+      ...state,
+      setTodos,
+      setTodoListName,
+      addTodo,
+      updateTodo,
+      deleteTodo,
+      toggleTodo,
+      setError,
+      clearError,
+      setLoading,
+    }),
+    [
+      state,
+      setTodos,
+      setTodoListName,
+      addTodo,
+      updateTodo,
+      deleteTodo,
+      toggleTodo,
+      setError,
+      clearError,
+      setLoading,
+    ]
+  );
+
   return (
-    <TodoContext.Provider
-      value={{
-        ...state,
-        setTodos,
-        setTodoListName,
-        addTodo,
-        updateTodo,
-        deleteTodo,
-        toggleTodo,
-      }}
-    >
-      {children}
-    </TodoContext.Provider>
+    <TodoContext.Provider value={contextValue}>{children}</TodoContext.Provider>
   );
 };

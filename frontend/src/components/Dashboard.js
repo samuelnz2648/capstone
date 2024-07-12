@@ -5,7 +5,16 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { TodoContext } from "../context/TodoContext";
 import { AuthContext } from "../context/AuthContext";
-import { Container, Form, Button, Row, Col, Alert } from "react-bootstrap";
+import {
+  Container,
+  Form,
+  Button,
+  Row,
+  Col,
+  Alert,
+  Modal,
+  Spinner,
+} from "react-bootstrap";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
@@ -14,12 +23,15 @@ const Dashboard = () => {
   const [savedTodoLists, setSavedTodoLists] = useState([]);
   const [selectedTodoList, setSelectedTodoList] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { setTodos, setTodoListName: setContextTodoListName } =
     useContext(TodoContext);
   const { authToken, username, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const fetchTodoLists = useCallback(async () => {
+    setIsLoading(true);
     try {
       const response = await axios.get(`${API_URL}/todos`, {
         headers: { Authorization: `Bearer ${authToken}` },
@@ -28,6 +40,8 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Error fetching saved todo lists:", error);
       setError("Failed to fetch todo lists. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   }, [authToken]);
 
@@ -40,6 +54,7 @@ const Dashboard = () => {
   const handleContinue = async (event) => {
     event.preventDefault();
     setError("");
+    setIsLoading(true);
     try {
       if (savedTodoLists.includes(todoListName)) {
         const response = await axios.get(`${API_URL}/todos/${todoListName}`, {
@@ -62,12 +77,18 @@ const Dashboard = () => {
       navigate("/todos");
     } catch (error) {
       console.error("Error creating/loading the todo list:", error);
-      setError("Failed to create/load todo list. Please try again.");
+      setError(
+        error.response?.data?.message ||
+          "Failed to create/load todo list. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleLoad = async () => {
     if (selectedTodoList) {
+      setIsLoading(true);
       try {
         const response = await axios.get(
           `${API_URL}/todos/${selectedTodoList}`,
@@ -80,13 +101,19 @@ const Dashboard = () => {
         navigate("/todos");
       } catch (error) {
         console.error("Error loading the todo list:", error);
-        setError("Failed to load todo list. Please try again.");
+        setError(
+          error.response?.data?.message ||
+            "Failed to load todo list. Please try again."
+        );
+      } finally {
+        setIsLoading(false);
       }
     }
   };
 
   const handleDelete = async () => {
     if (selectedTodoList) {
+      setIsLoading(true);
       try {
         await axios.delete(`${API_URL}/todos/${selectedTodoList}`, {
           headers: { Authorization: `Bearer ${authToken}` },
@@ -95,9 +122,15 @@ const Dashboard = () => {
           savedTodoLists.filter((name) => name !== selectedTodoList)
         );
         setSelectedTodoList("");
+        setShowDeleteModal(false);
       } catch (error) {
         console.error("Error deleting the todo list:", error);
-        setError("Failed to delete todo list. Please try again.");
+        setError(
+          error.response?.data?.message ||
+            "Failed to delete todo list. Please try again."
+        );
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -122,10 +155,20 @@ const Dashboard = () => {
                 onChange={(e) => setTodoListName(e.target.value)}
                 placeholder="Enter Todo List Name"
                 required
+                aria-label="Todo List Name"
               />
             </Form.Group>
-            <Button type="submit" variant="primary" className="w-100">
-              Continue to Todo List
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-100"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Spinner animation="border" size="sm" />
+              ) : (
+                "Continue to Todo List"
+              )}
             </Button>
           </Form>
           <h2 className="mt-4">Saved Todo Lists</h2>
@@ -135,6 +178,7 @@ const Dashboard = () => {
                 as="select"
                 onChange={(e) => setSelectedTodoList(e.target.value)}
                 value={selectedTodoList}
+                aria-label="Select a Todo List"
               >
                 <option value="" disabled>
                   Select a Todo List
@@ -150,8 +194,9 @@ const Dashboard = () => {
               <Button
                 variant="success"
                 onClick={handleLoad}
-                disabled={!selectedTodoList}
+                disabled={!selectedTodoList || isLoading}
                 className="w-100"
+                aria-label="Load Selected Todo List"
               >
                 Load
               </Button>
@@ -159,9 +204,10 @@ const Dashboard = () => {
             <Col>
               <Button
                 variant="danger"
-                onClick={handleDelete}
-                disabled={!selectedTodoList}
+                onClick={() => setShowDeleteModal(true)}
+                disabled={!selectedTodoList || isLoading}
                 className="w-100"
+                aria-label="Delete Selected Todo List"
               >
                 Delete
               </Button>
@@ -173,9 +219,27 @@ const Dashboard = () => {
         variant="danger"
         className="position-fixed bottom-0 end-0 m-3"
         onClick={handleLogout}
+        aria-label="Logout"
       >
         Logout
       </Button>
+
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete the todo list "{selectedTodoList}"?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

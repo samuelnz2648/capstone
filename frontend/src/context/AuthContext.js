@@ -1,6 +1,7 @@
 // frontend/src/context/AuthContext.js
 import React, { createContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import jwtDecode from "jwt-decode";
 
 export const AuthContext = createContext();
 
@@ -61,6 +62,42 @@ export const AuthProvider = ({ children }) => {
 
   const clearError = useCallback(() => setError(null), []);
 
+  const refreshToken = useCallback(async () => {
+    try {
+      const response = await axios.post(`${API_URL}/users/refresh-token`);
+      const { token } = response.data;
+      localStorage.setItem("authToken", token);
+      setAuthToken(token);
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+      logout();
+    }
+  }, [logout]);
+
+  const validateToken = useCallback(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        if (decodedToken.exp * 1000 < Date.now()) {
+          logout();
+        } else if (decodedToken.exp * 1000 - Date.now() < 300000) {
+          // 5 minutes
+          refreshToken();
+        }
+      } catch (error) {
+        console.error("Invalid token:", error);
+        logout();
+      }
+    }
+  }, [logout, refreshToken]);
+
+  useEffect(() => {
+    validateToken();
+    const interval = setInterval(validateToken, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [validateToken]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -71,6 +108,7 @@ export const AuthProvider = ({ children }) => {
         error,
         clearError,
         isLoading,
+        refreshToken,
       }}
     >
       {children}

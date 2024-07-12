@@ -2,9 +2,45 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Container, Form, Button, Row, Col, Alert } from "react-bootstrap";
+import {
+  Container,
+  Form,
+  Button,
+  Row,
+  Col,
+  Alert,
+  InputGroup,
+} from "react-bootstrap";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
+const PasswordStrengthIndicator = ({ password }) => {
+  const getStrength = (password) => {
+    let strength = 0;
+    if (password.length > 7) strength++;
+    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+    if (password.match(/\d/)) strength++;
+    if (password.match(/[^a-zA-Z\d]/)) strength++;
+    return strength;
+  };
+
+  const strength = getStrength(password);
+
+  return (
+    <div className="password-strength-meter mt-2">
+      <div
+        className={`strength-${strength}`}
+        style={{
+          height: "5px",
+          backgroundColor: ["red", "orange", "yellow", "green"][strength],
+        }}
+      ></div>
+      <span className="small">
+        {["Weak", "Fair", "Good", "Strong"][strength]}
+      </span>
+    </div>
+  );
+};
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
@@ -12,6 +48,8 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (event) => {
@@ -29,6 +67,12 @@ const RegisterPage = () => {
       setError(
         "Username must be at least 3 characters and password at least 6 characters long."
       );
+      setIsLoading(false);
+      return;
+    }
+
+    if (!agreeToTerms) {
+      setError("You must agree to the Terms of Service.");
       setIsLoading(false);
       return;
     }
@@ -71,14 +115,23 @@ const RegisterPage = () => {
             </Form.Group>
             <Form.Group className="mb-3" controlId="formPassword">
               <Form.Label>Create Password</Form.Label>
-              <Form.Control
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
-                required
-                minLength={6}
-              />
+              <InputGroup>
+                <Form.Control
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password"
+                  required
+                  minLength={6}
+                />
+                <Button
+                  variant="outline-secondary"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </Button>
+              </InputGroup>
+              <PasswordStrengthIndicator password={password} />
             </Form.Group>
             <Form.Group className="mb-3" controlId="formConfirmPassword">
               <Form.Label>Confirm Password</Form.Label>
@@ -90,11 +143,20 @@ const RegisterPage = () => {
                 required
               />
             </Form.Group>
+            <Form.Group className="mb-3" controlId="formTerms">
+              <Form.Check
+                type="checkbox"
+                label="I agree to the Terms of Service"
+                checked={agreeToTerms}
+                onChange={(e) => setAgreeToTerms(e.target.checked)}
+                required
+              />
+            </Form.Group>
             <Button
               type="submit"
               variant="primary"
               className="w-100"
-              disabled={isLoading}
+              disabled={isLoading || !agreeToTerms}
             >
               {isLoading ? "Registering..." : "Register"}
             </Button>

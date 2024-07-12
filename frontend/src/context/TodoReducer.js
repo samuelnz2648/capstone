@@ -2,6 +2,8 @@
 export const initialState = {
   todos: [],
   todoListName: "",
+  error: null,
+  isLoading: false,
 };
 
 const todoReducer = (state, action) => {
@@ -35,10 +37,14 @@ const todoReducer = (state, action) => {
             : todo
         ),
       };
-    case "CLEAR_TODOS":
-      return { ...state, todos: [] };
+    case "SET_ERROR":
+      return { ...state, error: action.payload };
+    case "CLEAR_ERROR":
+      return { ...state, error: null };
+    case "SET_LOADING":
+      return { ...state, isLoading: action.payload };
     default:
-      throw new Error(`Unhandled action type: ${action.type}`);
+      return state;
   }
 };
 
