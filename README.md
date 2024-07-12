@@ -11,7 +11,6 @@
 - [Testing](#testing)
 - [Folder Structure](#folder-structure)
 - [Database Schema](#Database-Schema)
-- [License](#license)
 
 ## Introduction
 
