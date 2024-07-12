@@ -2,7 +2,7 @@
 
 import React, { useState, useContext, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import { TodoContext } from "../context/TodoContext";
 import { AuthContext } from "../context/AuthContext";
 import {
@@ -16,8 +16,6 @@ import {
   Spinner,
 } from "react-bootstrap";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-
 const Dashboard = () => {
   const [todoListName, setTodoListName] = useState("");
   const [savedTodoLists, setSavedTodoLists] = useState([]);
@@ -27,15 +25,13 @@ const Dashboard = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { setTodos, setTodoListName: setContextTodoListName } =
     useContext(TodoContext);
-  const { authToken, username, logout } = useContext(AuthContext);
+  const { username, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const fetchTodoLists = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/todos`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
+      const response = await api.get("/todos");
       setSavedTodoLists(response.data);
     } catch (error) {
       console.error("Error fetching saved todo lists:", error);
@@ -43,13 +39,11 @@ const Dashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [authToken]);
+  }, []);
 
   useEffect(() => {
-    if (authToken) {
-      fetchTodoLists();
-    }
-  }, [authToken, fetchTodoLists]);
+    fetchTodoLists();
+  }, [fetchTodoLists]);
 
   const handleContinue = async (event) => {
     event.preventDefault();
@@ -57,19 +51,11 @@ const Dashboard = () => {
     setIsLoading(true);
     try {
       if (savedTodoLists.includes(todoListName)) {
-        const response = await axios.get(`${API_URL}/todos/${todoListName}`, {
-          headers: { Authorization: `Bearer ${authToken}` },
-        });
+        const response = await api.get(`/todos/${todoListName}`);
         setContextTodoListName(todoListName);
         setTodos(response.data);
       } else {
-        await axios.post(
-          `${API_URL}/todos/${todoListName}`,
-          {},
-          {
-            headers: { Authorization: `Bearer ${authToken}` },
-          }
-        );
+        await api.post(`/todos/${todoListName}`);
         setContextTodoListName(todoListName);
         setTodos([]);
         setSavedTodoLists([...savedTodoLists, todoListName]);
@@ -90,12 +76,7 @@ const Dashboard = () => {
     if (selectedTodoList) {
       setIsLoading(true);
       try {
-        const response = await axios.get(
-          `${API_URL}/todos/${selectedTodoList}`,
-          {
-            headers: { Authorization: `Bearer ${authToken}` },
-          }
-        );
+        const response = await api.get(`/todos/${selectedTodoList}`);
         setContextTodoListName(selectedTodoList);
         setTodos(response.data);
         navigate("/todos");
@@ -115,9 +96,7 @@ const Dashboard = () => {
     if (selectedTodoList) {
       setIsLoading(true);
       try {
-        await axios.delete(`${API_URL}/todos/${selectedTodoList}`, {
-          headers: { Authorization: `Bearer ${authToken}` },
-        });
+        await api.delete(`/todos/${selectedTodoList}`);
         setSavedTodoLists(
           savedTodoLists.filter((name) => name !== selectedTodoList)
         );

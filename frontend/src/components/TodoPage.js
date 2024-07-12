@@ -1,7 +1,7 @@
 // frontend/src/components/TodoPage.js
 import React, { useState, useContext, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import TodoList from "./TodoList";
 import { TodoContext } from "../context/TodoContext";
 import { AuthContext } from "../context/AuthContext";
@@ -17,8 +17,6 @@ import {
 } from "react-bootstrap";
 import { debounce } from "lodash";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-
 const TodoPage = () => {
   const [task, setTask] = useState("");
   const [error, setError] = useState("");
@@ -28,18 +26,16 @@ const TodoPage = () => {
   const [sortBy, setSortBy] = useState("default");
   const [filterCompleted, setFilterCompleted] = useState("all");
   const { todos, setTodos, todoListName } = useContext(TodoContext);
-  const { logout, authToken } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const updateTodoList = useCallback(
     debounce(async (newTodos) => {
       setIsLoading(true);
       try {
-        await axios.put(
-          `${API_URL}/todos/${encodeURIComponent(todoListName)}`,
-          { todos: newTodos },
-          { headers: { Authorization: `Bearer ${authToken}` } }
-        );
+        await api.put(`/todos/${encodeURIComponent(todoListName)}`, {
+          todos: newTodos,
+        });
         setTodos(newTodos);
       } catch (error) {
         console.error(
@@ -51,7 +47,7 @@ const TodoPage = () => {
         setIsLoading(false);
       }
     }, 500),
-    [authToken, todoListName, setTodos]
+    [todoListName, setTodos]
   );
 
   const filteredTodos = useMemo(() => {

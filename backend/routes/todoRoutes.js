@@ -141,13 +141,11 @@ router.put("/:todoListName", authMiddleware, async (req, res) => {
       .json({ message: `Todo list ${decodedTodoListName} updated.` });
   } catch (error) {
     console.error(`Error in PUT /${req.params.todoListName}:`, error);
-    res
-      .status(500)
-      .json({
-        message: "Server error.",
-        error: error.message,
-        stack: error.stack,
-      });
+    res.status(500).json({
+      message: "Server error.",
+      error: error.message,
+      stack: error.stack,
+    });
   }
 });
 

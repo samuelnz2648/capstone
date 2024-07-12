@@ -3,7 +3,6 @@
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const authMiddleware = require("../middleware/authMiddleware");
 
@@ -33,8 +32,7 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ message: "User already registered." });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12); // Increased salt rounds for better security
-    await User.create({ username, password: hashedPassword });
+    await User.create({ username, password });
     res.status(201).json({ message: "User registered successfully." });
   } catch (error) {
     console.error("Registration error:", error);
@@ -56,7 +54,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials." });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await user.validPassword(password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials." });
     }
@@ -64,7 +62,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       { userId: user.id, username: user.username },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" } // Token expires in 1 hour
+      { expiresIn: "1h" }
     );
     res.json({ token, userId: user.id, username: user.username });
   } catch (error) {
