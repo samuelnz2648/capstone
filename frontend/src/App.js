@@ -10,8 +10,8 @@ import {
 import { AuthProvider, AuthContext } from "./context/AuthContext";
 import { TodoProvider } from "./context/TodoContext";
 import ErrorBoundary from "./components/ErrorBoundary";
-import LoadingSpinner from "./components/LoadingSpinner"; // You'll need to create this component
-import NotFound from "./components/NotFound"; // You'll need to create this component
+import LoadingSpinner from "./components/LoadingSpinner"; 
+import NotFound from "./components/NotFound";
 
 // Lazy load components for better performance
 const LoginPage = React.lazy(() => import("./components/LoginPage"));
