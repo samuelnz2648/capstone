@@ -23,6 +23,7 @@ import {
   Spinner,
 } from "react-bootstrap";
 import { debounce } from "lodash";
+import "../styles/TodoPage.css";
 
 const TodoPage = () => {
   const [task, setTask] = useState("");
@@ -74,7 +75,7 @@ const TodoPage = () => {
 
       debouncedUpdate();
     },
-    [todoListName, setTodos, setIsLoading, setError]
+    [todoListName, setTodos]
   );
 
   const filteredTodos = useMemo(() => {

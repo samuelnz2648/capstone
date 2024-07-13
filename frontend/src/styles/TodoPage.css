@@ -1,0 +1,65 @@
+.todo-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 15px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.todo-list:hover {
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.todo-list::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.2), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.todo-list:not(.at-bottom)::after {
+  opacity: 1;
+}
+
+/* Customize scrollbar */
+.todo-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.todo-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.todo-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.todo-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Ensure consistent styling for list items */
+.todo-list .list-group-item {
+  padding: 10px 15px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+}
+
+/* Adjust the last item to prevent overlap with shadow */
+.todo-list .list-group-item:last-child {
+  margin-bottom: 40px;
+}
