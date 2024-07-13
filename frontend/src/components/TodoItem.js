@@ -1,17 +1,17 @@
 // capstone/frontend/src/components/TodoItem.js
 
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { ListGroup, Form, Button, InputGroup } from "react-bootstrap";
 import { Pencil, Trash, Check, X } from "react-bootstrap-icons";
 
-const TodoItem = ({ todo, index, updateTodo, deleteTodo, completeTodo }) => {
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [editedTask, setEditedTask] = React.useState(todo.task);
+const TodoItem = ({ todo, updateTodo, deleteTodo, completeTodo }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTask, setEditedTask] = useState(todo.task);
 
   const handleUpdate = () => {
     if (editedTask.trim()) {
-      updateTodo(index, editedTask);
+      updateTodo(todo.id, editedTask);
       setIsEditing(false);
     }
   };
@@ -48,7 +48,7 @@ const TodoItem = ({ todo, index, updateTodo, deleteTodo, completeTodo }) => {
           <Form.Check
             type="checkbox"
             checked={todo.completed}
-            onChange={() => completeTodo(index)}
+            onChange={() => completeTodo(todo.id)}
             label={
               <span
                 style={{
@@ -58,7 +58,7 @@ const TodoItem = ({ todo, index, updateTodo, deleteTodo, completeTodo }) => {
                 {todo.task}
               </span>
             }
-            id={`todo-${index}`}
+            id={`todo-${todo.id}`}
           />
           <div>
             <Button
@@ -66,13 +66,15 @@ const TodoItem = ({ todo, index, updateTodo, deleteTodo, completeTodo }) => {
               size="sm"
               onClick={() => setIsEditing(true)}
               className="me-2"
+              aria-label="Edit todo"
             >
               <Pencil />
             </Button>
             <Button
               variant="outline-danger"
               size="sm"
-              onClick={() => deleteTodo(index)}
+              onClick={() => deleteTodo(todo.id)}
+              aria-label="Delete todo"
             >
               <Trash />
             </Button>
@@ -85,10 +87,10 @@ const TodoItem = ({ todo, index, updateTodo, deleteTodo, completeTodo }) => {
 
 TodoItem.propTypes = {
   todo: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     task: PropTypes.string.isRequired,
     completed: PropTypes.bool.isRequired,
   }).isRequired,
-  index: PropTypes.number.isRequired,
   updateTodo: PropTypes.func.isRequired,
   deleteTodo: PropTypes.func.isRequired,
   completeTodo: PropTypes.func.isRequired,

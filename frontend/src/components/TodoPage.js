@@ -57,7 +57,7 @@ const TodoPage = () => {
           setIsLoading(false);
         }
       }, 500),
-    [todoListName, setTodos, setError, setIsLoading]
+    [todoListName, setTodos]
   );
 
   const updateTodoList = useCallback(
@@ -82,35 +82,57 @@ const TodoPage = () => {
     };
   }, []);
 
+  const filteredAndSortedTodos = useMemo(() => {
+    let filteredTodos = todos;
+
+    if (filterCompleted === "completed") {
+      filteredTodos = todos.filter((todo) => todo.completed);
+    } else if (filterCompleted === "active") {
+      filteredTodos = todos.filter((todo) => !todo.completed);
+    }
+
+    if (sortBy === "completed") {
+      return [...filteredTodos].sort((a, b) =>
+        a.completed === b.completed ? 0 : a.completed ? -1 : 1
+      );
+    }
+    return filteredTodos;
+  }, [todos, sortBy, filterCompleted]);
+
   const handleAddTodo = (event) => {
     event.preventDefault();
     if (task.trim() === "") return;
-    const newTodos = [...todos, { task: task.trim(), completed: false }];
+    const newTodo = {
+      id: Date.now(),
+      task: task.trim(),
+      completed: false,
+    };
+    const newTodos = [...todos, newTodo];
     updateTodoList(newTodos);
     setTask("");
   };
 
-  const handleUpdateTodo = (index, updatedTask) => {
-    const newTodos = todos.map((todo, i) =>
-      i === index ? { ...todo, task: updatedTask } : todo
+  const handleUpdateTodo = (id, updatedTask) => {
+    const newTodos = todos.map((todo) =>
+      todo.id === id ? { ...todo, task: updatedTask } : todo
     );
     updateTodoList(newTodos);
   };
 
-  const handleDeleteTodo = (index) => {
-    setTodoToDelete(index);
+  const handleDeleteTodo = (id) => {
+    setTodoToDelete(id);
     setShowDeleteModal(true);
   };
 
   const confirmDeleteTodo = () => {
-    const newTodos = todos.filter((_, i) => i !== todoToDelete);
+    const newTodos = todos.filter((todo) => todo.id !== todoToDelete);
     updateTodoList(newTodos);
     setShowDeleteModal(false);
   };
 
-  const handleCompleteTodo = (index) => {
-    const newTodos = todos.map((todo, i) =>
-      i === index ? { ...todo, completed: !todo.completed } : todo
+  const handleCompleteTodo = (id) => {
+    const newTodos = todos.map((todo) =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
     );
     updateTodoList(newTodos);
   };
@@ -168,12 +190,10 @@ const TodoPage = () => {
           ) : (
             <div className="todo-list-container">
               <TodoList
-                todos={todos}
+                todos={filteredAndSortedTodos}
                 updateTodo={handleUpdateTodo}
                 deleteTodo={handleDeleteTodo}
                 completeTodo={handleCompleteTodo}
-                sortBy={sortBy}
-                filterCompleted={filterCompleted}
               />
             </div>
           )}
