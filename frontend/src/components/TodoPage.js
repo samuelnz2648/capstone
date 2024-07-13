@@ -38,24 +38,9 @@ const TodoPage = () => {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    let timeout;
-    const handleScroll = () => {
-      setShowButtons(false);
-      clearTimeout(timeout);
-      timeout = setTimeout(() => setShowButtons(true), 500);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      clearTimeout(timeout);
-    };
-  }, []);
-
-  const updateTodoList = useCallback(
-    (newTodos) => {
-      const debouncedUpdate = debounce(async () => {
+  const debouncedApiCall = useMemo(
+    () =>
+      debounce(async (newTodos) => {
         setIsLoading(true);
         try {
           await api.put(`/todos/${encodeURIComponent(todoListName)}`, {
@@ -71,25 +56,35 @@ const TodoPage = () => {
         } finally {
           setIsLoading(false);
         }
-      }, 500);
-
-      debouncedUpdate();
-    },
-    [todoListName, setTodos]
+      }, 500),
+    [todoListName, setTodos, setError, setIsLoading]
   );
 
-  const filteredTodos = useMemo(() => {
-    return todos.filter((todo) => {
-      if (filterCompleted === "completed") return todo.completed;
-      if (filterCompleted === "active") return !todo.completed;
-      return true;
-    });
-  }, [todos, filterCompleted]);
+  const updateTodoList = useCallback(
+    (newTodos) => {
+      debouncedApiCall(newTodos);
+    },
+    [debouncedApiCall]
+  );
+
+  useEffect(() => {
+    let timeout;
+    const handleScroll = () => {
+      setShowButtons(false);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => setShowButtons(true), 500);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeout);
+    };
+  }, []);
 
   const handleAddTodo = (event) => {
     event.preventDefault();
     if (task.trim() === "") return;
-
     const newTodos = [...todos, { task: task.trim(), completed: false }];
     updateTodoList(newTodos);
     setTask("");
@@ -118,13 +113,6 @@ const TodoPage = () => {
       i === index ? { ...todo, completed: !todo.completed } : todo
     );
     updateTodoList(newTodos);
-  };
-
-  const handleFinish = () => navigate("/summary");
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
   };
 
   return (
@@ -178,13 +166,16 @@ const TodoPage = () => {
               <span className="visually-hidden">Loading...</span>
             </Spinner>
           ) : (
-            <TodoList
-              todos={filteredTodos}
-              updateTodo={handleUpdateTodo}
-              deleteTodo={handleDeleteTodo}
-              completeTodo={handleCompleteTodo}
-              sortBy={sortBy}
-            />
+            <div className="todo-list-container">
+              <TodoList
+                todos={todos}
+                updateTodo={handleUpdateTodo}
+                deleteTodo={handleDeleteTodo}
+                completeTodo={handleCompleteTodo}
+                sortBy={sortBy}
+                filterCompleted={filterCompleted}
+              />
+            </div>
           )}
         </Col>
       </Row>
@@ -211,14 +202,14 @@ const TodoPage = () => {
             <Col>
               <Button
                 variant="success"
-                onClick={handleFinish}
+                onClick={() => navigate("/summary")}
                 className="w-100"
               >
                 View Summary
               </Button>
             </Col>
             <Col>
-              <Button variant="danger" onClick={handleLogout} className="w-100">
+              <Button variant="danger" onClick={logout} className="w-100">
                 Logout
               </Button>
             </Col>
