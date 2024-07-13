@@ -1,24 +1,15 @@
 // capstone/frontend/src/components/SummaryPage.js
 
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { TodoContext } from "../context/TodoContext";
 import { AuthContext } from "../context/AuthContext";
-import {
-  Container,
-  Button,
-  Row,
-  Col,
-  ListGroup,
-  Badge,
-  Modal,
-} from "react-bootstrap";
+import { Container, Button, Row, Col, ListGroup, Badge } from "react-bootstrap";
 
 const SummaryPage = () => {
   const { todos, todoListName } = useContext(TodoContext);
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const { completedTasks, incompleteTasks } = useMemo(() => {
     const completed = todos.filter((todo) => todo.completed);
@@ -29,7 +20,6 @@ const SummaryPage = () => {
   const handleStartOver = () => navigate("/dashboard");
 
   const handleLogout = () => {
-    setShowLogoutModal(false);
     logout();
     navigate("/");
   };
@@ -102,7 +92,7 @@ const SummaryPage = () => {
         <Col md={4}>
           <Button
             variant="danger"
-            onClick={() => setShowLogoutModal(true)}
+            onClick={handleLogout}
             className="w-100 mb-2"
             aria-label="Logout"
           >
@@ -110,21 +100,6 @@ const SummaryPage = () => {
           </Button>
         </Col>
       </Row>
-
-      <Modal show={showLogoutModal} onHide={() => setShowLogoutModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Logout</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Are you sure you want to logout?</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowLogoutModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleLogout}>
-            Logout
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </Container>
   );
 };

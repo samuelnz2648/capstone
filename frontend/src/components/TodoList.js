@@ -7,13 +7,12 @@ import { ListGroup } from "react-bootstrap";
 import { FixedSizeList as List } from "react-window";
 
 const TodoList = memo(
-  ({ todos, updateTodo, deleteTodo, completeTodo, sortBy }) => {
+  ({ todos, updateTodo, deleteTodo, completeTodo, sortBy = "default" }) => {
     const sortedTodos = useMemo(() => {
       return [...todos].sort((a, b) => {
         if (sortBy === "completed") {
           return a.completed === b.completed ? 0 : a.completed ? 1 : -1;
         }
-
         return 0;
       });
     }, [todos, sortBy]);
@@ -63,10 +62,6 @@ TodoList.propTypes = {
   deleteTodo: PropTypes.func.isRequired,
   completeTodo: PropTypes.func.isRequired,
   sortBy: PropTypes.string,
-};
-
-TodoList.defaultProps = {
-  sortBy: "default",
 };
 
 TodoList.displayName = "TodoList";

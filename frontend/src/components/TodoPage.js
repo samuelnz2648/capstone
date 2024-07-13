@@ -1,6 +1,12 @@
 // capstone/frontend/src/components/TodoPage.js
 
-import React, { useState, useContext, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useContext,
+  useCallback,
+  useMemo,
+  useEffect,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import TodoList from "./TodoList";
@@ -26,29 +32,49 @@ const TodoPage = () => {
   const [todoToDelete, setTodoToDelete] = useState(null);
   const [sortBy, setSortBy] = useState("default");
   const [filterCompleted, setFilterCompleted] = useState("all");
+  const [showButtons, setShowButtons] = useState(true);
   const { todos, setTodos, todoListName } = useContext(TodoContext);
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    let timeout;
+    const handleScroll = () => {
+      setShowButtons(false);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => setShowButtons(true), 500);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeout);
+    };
+  }, []);
+
   const updateTodoList = useCallback(
-    debounce(async (newTodos) => {
-      setIsLoading(true);
-      try {
-        await api.put(`/todos/${encodeURIComponent(todoListName)}`, {
-          todos: newTodos,
-        });
-        setTodos(newTodos);
-      } catch (error) {
-        console.error(
-          "Error updating todo list:",
-          error.response?.data || error.message
-        );
-        setError("Failed to update todo list. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    }, 500),
-    [todoListName, setTodos]
+    (newTodos) => {
+      const debouncedUpdate = debounce(async () => {
+        setIsLoading(true);
+        try {
+          await api.put(`/todos/${encodeURIComponent(todoListName)}`, {
+            todos: newTodos,
+          });
+          setTodos(newTodos);
+        } catch (error) {
+          console.error(
+            "Error updating todo list:",
+            error.response?.data || error.message
+          );
+          setError("Failed to update todo list. Please try again.");
+        } finally {
+          setIsLoading(false);
+        }
+      }, 500);
+
+      debouncedUpdate();
+    },
+    [todoListName, setTodos, setIsLoading, setError]
   );
 
   const filteredTodos = useMemo(() => {
@@ -59,38 +85,38 @@ const TodoPage = () => {
     });
   }, [todos, filterCompleted]);
 
-  const handleAddTodo = async (event) => {
+  const handleAddTodo = (event) => {
     event.preventDefault();
     if (task.trim() === "") return;
 
     const newTodos = [...todos, { task: task.trim(), completed: false }];
-    await updateTodoList(newTodos);
+    updateTodoList(newTodos);
     setTask("");
   };
 
-  const handleUpdateTodo = async (index, updatedTask) => {
+  const handleUpdateTodo = (index, updatedTask) => {
     const newTodos = todos.map((todo, i) =>
       i === index ? { ...todo, task: updatedTask } : todo
     );
-    await updateTodoList(newTodos);
+    updateTodoList(newTodos);
   };
 
-  const handleDeleteTodo = async (index) => {
+  const handleDeleteTodo = (index) => {
     setTodoToDelete(index);
     setShowDeleteModal(true);
   };
 
-  const confirmDeleteTodo = async () => {
+  const confirmDeleteTodo = () => {
     const newTodos = todos.filter((_, i) => i !== todoToDelete);
-    await updateTodoList(newTodos);
+    updateTodoList(newTodos);
     setShowDeleteModal(false);
   };
 
-  const handleCompleteTodo = async (index) => {
+  const handleCompleteTodo = (index) => {
     const newTodos = todos.map((todo, i) =>
       i === index ? { ...todo, completed: !todo.completed } : todo
     );
-    await updateTodoList(newTodos);
+    updateTodoList(newTodos);
   };
 
   const handleFinish = () => navigate("/summary");
@@ -101,7 +127,7 @@ const TodoPage = () => {
   };
 
   return (
-    <Container className="mt-5">
+    <Container className="mt-5" style={{ paddingBottom: "120px" }}>
       <h1 className="text-center mb-4">{todoListName}</h1>
       {error && (
         <Alert variant="danger" onClose={() => setError("")} dismissible>
@@ -159,7 +185,19 @@ const TodoPage = () => {
               sortBy={sortBy}
             />
           )}
-          <Row className="mt-4">
+        </Col>
+      </Row>
+
+      <div
+        className={`fixed-bottom bg-white py-3 transition-opacity ${
+          showButtons ? "opacity-100" : "opacity-0"
+        }`}
+        style={{
+          transition: "opacity 0.3s ease-in-out",
+        }}
+      >
+        <Container>
+          <Row>
             <Col>
               <Button
                 variant="secondary"
@@ -178,16 +216,14 @@ const TodoPage = () => {
                 View Summary
               </Button>
             </Col>
+            <Col>
+              <Button variant="danger" onClick={handleLogout} className="w-100">
+                Logout
+              </Button>
+            </Col>
           </Row>
-        </Col>
-      </Row>
-      <Button
-        variant="danger"
-        className="position-fixed bottom-0 end-0 m-3"
-        onClick={handleLogout}
-      >
-        Logout
-      </Button>
+        </Container>
+      </div>
 
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
