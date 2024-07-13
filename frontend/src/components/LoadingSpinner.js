@@ -1,4 +1,4 @@
-// frontend/src/components/LoadingSpinner.js
+// capstone/frontend/src/components/LoadingSpinner.js
 
 import React from "react";
 import { Spinner } from "react-bootstrap";

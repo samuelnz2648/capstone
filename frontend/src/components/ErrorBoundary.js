@@ -1,4 +1,5 @@
-// src/components/ErrorBoundary.js
+// capstone/frontend/src/components/ErrorBoundary.js
+
 import React from "react";
 
 class ErrorBoundary extends React.Component {

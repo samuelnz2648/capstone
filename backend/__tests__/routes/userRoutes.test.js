@@ -1,4 +1,4 @@
-// backend/__tests__/routes/userRoutes.test.js
+// capstone/backend/__tests__/routes/userRoutes.test.js
 
 const request = require("supertest");
 const express = require("express");

@@ -1,4 +1,4 @@
-// frontend/src/components/__tests__/LoginPage.test.js
+// capstone/frontend/src/components/__tests__/LoginPage.test.js
 
 import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react";

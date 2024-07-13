@@ -1,4 +1,4 @@
-// backend/models/associations.js
+// capstone/backend/models/associations.js
 
 const User = require("./User");
 const TodoList = require("./TodoList");

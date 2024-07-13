@@ -1,4 +1,5 @@
-// frontend/src/components/TodoList.js
+// capstone/frontend/src/components/TodoList.js
+
 import React, { memo, useMemo } from "react";
 import PropTypes from "prop-types";
 import TodoItem from "./TodoItem";

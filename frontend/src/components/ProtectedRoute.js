@@ -1,4 +1,5 @@
-// src/components/ProtectedRoute.js
+// capstone/frontend/src/components/ProtectedRoute.js
+
 import React, { useContext } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";

@@ -1,4 +1,4 @@
-// frontend/src/components/__tests__/TodoList.test.js
+// capstone/frontend/src/components/__tests__/TodoList.test.js
 
 import React from "react";
 import { render } from "@testing-library/react";

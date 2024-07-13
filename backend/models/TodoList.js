@@ -1,4 +1,4 @@
-// backend/models/TodoList.js
+// capstone/backend/models/TodoList.js
 
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");

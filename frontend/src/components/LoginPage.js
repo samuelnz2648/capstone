@@ -1,4 +1,5 @@
-// frontend/src/components/LoginPage.js
+// capstone/frontend/src/components/LoginPage.js
+
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Button, Row, Col, Form, Alert } from "react-bootstrap";

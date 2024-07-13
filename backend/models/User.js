@@ -1,4 +1,4 @@
-// backend/models/User.js
+// capstone/backend/models/User.js
 
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");

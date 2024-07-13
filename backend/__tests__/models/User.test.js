@@ -1,4 +1,4 @@
-// backend/__tests__/models/User.test.js
+// capstone/backend/__tests__/models/User.test.js
 
 const User = require("../../models/User");
 const bcrypt = require("bcrypt");

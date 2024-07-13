@@ -1,4 +1,4 @@
-// frontend/src/components/Dashboard.js
+// capstone/frontend/src/components/Dashboard.js
 
 import React, { useState, useContext, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";

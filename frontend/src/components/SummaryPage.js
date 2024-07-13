@@ -1,4 +1,4 @@
-// frontend/src/components/SummaryPage.js
+// capstone/frontend/src/components/SummaryPage.js
 
 import React, { useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";

@@ -1,4 +1,4 @@
-// backend/config/database.js
+// capstone/backend/config/database.js
 
 const { Sequelize } = require('sequelize');
 

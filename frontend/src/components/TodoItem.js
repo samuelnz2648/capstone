@@ -1,4 +1,5 @@
-// frontend/src/components/TodoItem.js
+// capstone/frontend/src/components/TodoItem.js
+
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { ListGroup, Form, Button, InputGroup } from "react-bootstrap";

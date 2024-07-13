@@ -1,4 +1,4 @@
-// frontend/src/utils/api.js
+// capstone/frontend/src/utils/api.js
 
 import axios from "axios";
 

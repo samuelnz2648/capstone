@@ -1,4 +1,5 @@
-// frontend/src/context/TodoReducer.js
+// capstone/frontend/src/context/TodoReducer.js
+
 export const initialState = {
   todos: [],
   todoListName: "",

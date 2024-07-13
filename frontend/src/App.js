@@ -1,4 +1,4 @@
-// frontend/src/App.js
+// capstone/frontend/src/App.js
 
 import React, { useContext, Suspense } from "react";
 import {
