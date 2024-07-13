@@ -1,6 +1,6 @@
 // capstone/frontend/src/components/TodoList.js
 
-import React, { memo, useMemo } from "react";
+import React, { memo, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import TodoItem from "./TodoItem";
 import { ListGroup } from "react-bootstrap";
@@ -8,6 +8,8 @@ import { FixedSizeList as List } from "react-window";
 
 const TodoList = memo(
   ({ todos, updateTodo, deleteTodo, completeTodo, sortBy = "default" }) => {
+    const listRef = useRef(null);
+
     const sortedTodos = useMemo(() => {
       return [...todos].sort((a, b) => {
         if (sortBy === "completed") {
@@ -16,6 +18,29 @@ const TodoList = memo(
         return 0;
       });
     }, [todos, sortBy]);
+
+    useEffect(() => {
+      const checkScroll = () => {
+        if (listRef.current) {
+          const list = listRef.current._outerRef;
+          const { scrollTop, scrollHeight, clientHeight } = list;
+          const isNotAtBottom = scrollTop + clientHeight < scrollHeight - 1;
+          list.classList.toggle("show-shadow", isNotAtBottom);
+        }
+      };
+
+      const list = listRef.current?._outerRef;
+      if (list) {
+        list.addEventListener("scroll", checkScroll);
+        checkScroll(); // Initial check
+      }
+
+      return () => {
+        if (list) {
+          list.removeEventListener("scroll", checkScroll);
+        }
+      };
+    }, [sortedTodos]);
 
     const Row = ({ index, style }) => (
       <div style={style}>
@@ -30,9 +55,10 @@ const TodoList = memo(
     );
 
     return (
-      <ListGroup aria-label="Todo list">
+      <ListGroup aria-label="Todo list" className="todo-list">
         {sortedTodos.length > 0 ? (
           <List
+            ref={listRef}
             height={400}
             itemCount={sortedTodos.length}
             itemSize={50}
