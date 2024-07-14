@@ -33,11 +33,6 @@
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Alert Styles */
-.alert {
-  margin-bottom: 20px;
-}
-
 /* Animation for bottom buttons */
 .transition-opacity {
   transition: opacity 0.3s ease-in-out;
@@ -47,12 +42,6 @@
 .spinner-border {
   display: block;
   margin: 20px auto;
-}
-
-/* Page Title Styles */
-h1.text-center {
-  margin-bottom: 30px;
-  color: #007bff;
 }
 
 /* Fixed Bottom Button Container */
