@@ -8,11 +8,6 @@ const sequelize = require("./config/database");
 const todoRoutes = require("./routes/todoRoutes");
 const userRoutes = require("./routes/userRoutes");
 
-// Import models
-const User = require("./models/User");
-const TodoList = require("./models/TodoList");
-const Todo = require("./models/Todo");
-
 // Import associations
 require("./models/associations");
 

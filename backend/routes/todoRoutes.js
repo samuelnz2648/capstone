@@ -8,34 +8,28 @@ const Todo = require("../models/Todo");
 const User = require("../models/User");
 const { Op } = require("sequelize");
 
-// Helper function to find user and todo list
-const findUserAndTodoList = async (username, todoListName) => {
-  const user = await User.findOne({
-    where: { username },
-    include: {
-      model: TodoList,
-      where: { name: { [Op.like]: todoListName } },
-      include: Todo,
-    },
+// Helper function to find todo list
+const findTodoList = async (username, todoListName) => {
+  return await TodoList.findOne({
+    where: { name: { [Op.like]: todoListName } },
+    include: [{ model: User, where: { username } }, { model: Todo }],
   });
-  return user;
 };
 
 // GET all todo lists
 router.get("/", authMiddleware, async (req, res) => {
   console.log("GET / - Fetching all todo lists");
   try {
-    const user = await User.findOne({
-      where: { username: req.user.username },
-      include: TodoList,
+    const todoLists = await TodoList.findAll({
+      attributes: ["name"],
+      include: {
+        model: User,
+        where: { username: req.user.username },
+        attributes: [],
+      },
     });
 
-    if (!user) {
-      console.log(`User not found: ${req.user.username}`);
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    const todoListNames = user.TodoLists.map((list) => list.name);
+    const todoListNames = todoLists.map((list) => list.name);
     console.log(`Todo lists fetched for ${req.user.username}:`, todoListNames);
     res.status(200).json(todoListNames);
   } catch (error) {
@@ -49,19 +43,15 @@ router.get("/:todoListName", authMiddleware, async (req, res) => {
   console.log(`GET /${req.params.todoListName} - Fetching specific todo list`);
   try {
     const decodedTodoListName = decodeURIComponent(req.params.todoListName);
-    const user = await findUserAndTodoList(
-      req.user.username,
-      decodedTodoListName
-    );
+    const todoList = await findTodoList(req.user.username, decodedTodoListName);
 
-    if (!user) {
-      console.log(`User not found: ${req.user.username}`);
-      return res.status(404).json({ message: "User not found." });
+    if (!todoList) {
+      console.log(`Todo list not found: ${decodedTodoListName}`);
+      return res.status(404).json({ message: "Todo list not found." });
     }
 
-    const todoList = user.TodoLists[0];
-    console.log(`Todo list fetched:`, todoList);
-    res.status(200).json(todoList ? todoList.Todos : []);
+    console.log(`Todo list fetched:`, todoList.name);
+    res.status(200).json(todoList.Todos);
   } catch (error) {
     console.error(`Error in GET /${req.params.todoListName}:`, error);
     res.status(500).json({ message: "Server error.", error: error.message });
@@ -84,7 +74,7 @@ router.post("/:todoListName", authMiddleware, async (req, res) => {
       name: decodedTodoListName,
       UserId: user.id,
     });
-    console.log(`New todo list created:`, newList);
+    console.log(`New todo list created:`, newList.name);
 
     res
       .status(201)
@@ -102,18 +92,16 @@ router.put("/:todoListName", authMiddleware, async (req, res) => {
     const decodedTodoListName = decodeURIComponent(req.params.todoListName);
     console.log(`Request body:`, req.body);
 
-    const user = await findUserAndTodoList(
-      req.user.username,
-      decodedTodoListName
-    );
+    let todoList = await findTodoList(req.user.username, decodedTodoListName);
 
-    if (!user) {
-      console.log(`User not found: ${req.user.username}`);
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    let todoList = user.TodoLists[0];
     if (!todoList) {
+      const user = await User.findOne({
+        where: { username: req.user.username },
+      });
+      if (!user) {
+        console.log(`User not found: ${req.user.username}`);
+        return res.status(404).json({ message: "User not found." });
+      }
       todoList = await TodoList.create({
         name: decodedTodoListName,
         UserId: user.id,
@@ -134,7 +122,7 @@ router.put("/:todoListName", authMiddleware, async (req, res) => {
         TodoListId: todoList.id,
       }))
     );
-    console.log(`New todos created:`, createdTodos);
+    console.log(`Todos updated:`, createdTodos.length);
 
     res
       .status(200)
@@ -154,17 +142,8 @@ router.delete("/:todoListName", authMiddleware, async (req, res) => {
   console.log(`DELETE /${req.params.todoListName} - Deleting todo list`);
   try {
     const decodedTodoListName = decodeURIComponent(req.params.todoListName);
-    const user = await findUserAndTodoList(
-      req.user.username,
-      decodedTodoListName
-    );
+    const todoList = await findTodoList(req.user.username, decodedTodoListName);
 
-    if (!user) {
-      console.log(`User not found: ${req.user.username}`);
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    const todoList = user.TodoLists[0];
     if (todoList) {
       await TodoList.destroy({ where: { id: todoList.id } });
       console.log(`Todo list deleted: ${todoList.id}`);
