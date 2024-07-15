@@ -21,7 +21,11 @@ import {
   Alert,
   Modal,
   Spinner,
+  Navbar,
+  Nav,
+  Offcanvas,
 } from "react-bootstrap";
+import { List, X } from "react-bootstrap-icons";
 import { debounce } from "lodash";
 import "../styles/TodoPage.css";
 
@@ -34,6 +38,7 @@ const TodoPage = () => {
   const [sortBy, setSortBy] = useState("default");
   const [filterCompleted, setFilterCompleted] = useState("all");
   const [showButtons, setShowButtons] = useState(true);
+  const [showNavbar, setShowNavbar] = useState(false);
   const { todos, setTodos, todoListName } = useContext(TodoContext);
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -137,121 +142,163 @@ const TodoPage = () => {
     updateTodoList(newTodos);
   };
 
+  const handleNavbarToggle = () => setShowNavbar(!showNavbar);
+
+  const handleLogout = () => {
+    logout();
+    setShowNavbar(false);
+    navigate("/");
+  };
+
   return (
-    <Container className="mt-5" style={{ paddingBottom: "120px" }}>
-      <h1 className="text-center mb-4">{todoListName}</h1>
-      {error && (
-        <Alert variant="danger" onClose={() => setError("")} dismissible>
-          {error}
-        </Alert>
-      )}
-      <Row className="justify-content-md-center">
-        <Col md={6}>
-          <Form onSubmit={handleAddTodo} className="mb-4">
-            <Form.Group controlId="formTask">
-              <Form.Label>Enter Your Task</Form.Label>
-              <Form.Control
-                type="text"
-                value={task}
-                onChange={(e) => setTask(e.target.value)}
-                placeholder="Enter Your Task"
-                required
-              />
-            </Form.Group>
-            <Button type="submit" variant="primary" className="w-100 mt-3">
-              Add Todo
-            </Button>
-          </Form>
-          <Form.Group className="mb-3">
-            <Form.Label>Sort By</Form.Label>
-            <Form.Select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="default">Default</option>
-              <option value="completed">Completed</option>
-            </Form.Select>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Filter</Form.Label>
-            <Form.Select
-              value={filterCompleted}
-              onChange={(e) => setFilterCompleted(e.target.value)}
-            >
-              <option value="all">All</option>
-              <option value="active">Active</option>
-              <option value="completed">Completed</option>
-            </Form.Select>
-          </Form.Group>
-          {isLoading ? (
-            <Spinner animation="border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </Spinner>
-          ) : (
-            <div className="todo-list-container">
-              <TodoList
-                todos={filteredAndSortedTodos}
-                updateTodo={handleUpdateTodo}
-                deleteTodo={handleDeleteTodo}
-                completeTodo={handleCompleteTodo}
-              />
-            </div>
-          )}
-        </Col>
-      </Row>
-
-      <div
-        className={`fixed-bottom bg-white py-3 transition-opacity ${
-          showButtons ? "opacity-100" : "opacity-0"
-        }`}
-        style={{
-          transition: "opacity 0.3s ease-in-out",
-        }}
-      >
-        <Container>
-          <Row>
-            <Col>
-              <Button
-                variant="secondary"
-                onClick={() => navigate("/dashboard")}
-                className="w-100"
-              >
-                Back to Dashboard
-              </Button>
-            </Col>
-            <Col>
-              <Button
-                variant="success"
-                onClick={() => navigate("/summary")}
-                className="w-100"
-              >
-                View Summary
-              </Button>
-            </Col>
-            <Col>
-              <Button variant="danger" onClick={logout} className="w-100">
-                Logout
-              </Button>
-            </Col>
-          </Row>
+    <div className="d-flex">
+      <Navbar expand={false} className="navbar-custom" variant="light">
+        <Container fluid className="p-0">
+          <Navbar.Toggle onClick={handleNavbarToggle} className="border-0">
+            {showNavbar ? <X size={30} /> : <List size={30} />}
+          </Navbar.Toggle>
+          <Navbar.Offcanvas
+            id="offcanvasNavbar"
+            aria-labelledby="offcanvasNavbarLabel"
+            placement="start"
+            show={showNavbar}
+            onHide={() => setShowNavbar(false)}
+            className="navbar-custom-offcanvas"
+          >
+            <Offcanvas.Header closeButton>
+              <Offcanvas.Title id="offcanvasNavbarLabel">Menu</Offcanvas.Title>
+            </Offcanvas.Header>
+            <Offcanvas.Body>
+              <Nav className="justify-content-end flex-grow-1 pe-3">
+                <Button
+                  variant="danger"
+                  onClick={handleLogout}
+                  className="mt-3"
+                >
+                  Logout
+                </Button>
+              </Nav>
+            </Offcanvas.Body>
+          </Navbar.Offcanvas>
         </Container>
-      </div>
+      </Navbar>
 
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Delete</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Are you sure you want to delete this todo?</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={confirmDeleteTodo}>
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </Container>
+      <Container
+        className={`mt-5 ${showNavbar ? "content-shifted" : ""}`}
+        style={{ paddingBottom: "120px" }}
+      >
+        <h1 className="text-center mb-4">{todoListName}</h1>
+        {error && (
+          <Alert variant="danger" onClose={() => setError("")} dismissible>
+            {error}
+          </Alert>
+        )}
+        <Row className="justify-content-md-center">
+          <Col md={6}>
+            <Form onSubmit={handleAddTodo} className="mb-4">
+              <Form.Group controlId="formTask">
+                <Form.Label>Enter Your Task</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={task}
+                  onChange={(e) => setTask(e.target.value)}
+                  placeholder="Enter Your Task"
+                  required
+                />
+              </Form.Group>
+              <Button type="submit" variant="primary" className="w-100 mt-3">
+                Add Todo
+              </Button>
+            </Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Sort By</Form.Label>
+              <Form.Select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="default">Default</option>
+                <option value="completed">Completed</option>
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Filter</Form.Label>
+              <Form.Select
+                value={filterCompleted}
+                onChange={(e) => setFilterCompleted(e.target.value)}
+              >
+                <option value="all">All</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+              </Form.Select>
+            </Form.Group>
+            {isLoading ? (
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            ) : (
+              <div className="todo-list-container">
+                <TodoList
+                  todos={filteredAndSortedTodos}
+                  updateTodo={handleUpdateTodo}
+                  deleteTodo={handleDeleteTodo}
+                  completeTodo={handleCompleteTodo}
+                />
+              </div>
+            )}
+          </Col>
+        </Row>
+
+        <div
+          className={`fixed-bottom bg-white py-3 transition-opacity ${
+            showButtons ? "opacity-100" : "opacity-0"
+          }`}
+          style={{
+            transition: "opacity 0.3s ease-in-out",
+          }}
+        >
+          <Container>
+            <Row>
+              <Col>
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate("/dashboard")}
+                  className="w-100"
+                >
+                  Back to Dashboard
+                </Button>
+              </Col>
+              <Col>
+                <Button
+                  variant="success"
+                  onClick={() => navigate("/summary")}
+                  className="w-100"
+                >
+                  View Summary
+                </Button>
+              </Col>
+            </Row>
+          </Container>
+        </div>
+
+        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm Delete</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Are you sure you want to delete this todo?</Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="secondary"
+              onClick={() => setShowDeleteModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={confirmDeleteTodo}>
+              Delete
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </Container>
+    </div>
   );
 };
 

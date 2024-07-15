@@ -49,9 +49,67 @@
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive Styles */
+/* Navbar Styles */
+.navbar-custom {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 60px;
+  width: 60px;
+  z-index: 1030;
+  background-color: transparent !important;
+}
+
+.navbar-custom .navbar-toggler {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  border: none;
+  padding: 0;
+}
+
+.navbar-custom-offcanvas {
+  width: 250px !important;
+}
+
+.content-shifted {
+  margin-left: 250px;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Adjust the main content container */
+.container {
+  transition: margin-left 0.3s ease-in-out;
+  padding-left: 70px; /* Add left padding to account for the navbar toggle */
+}
+
+/* Make the toggle button always visible */
+.navbar-toggler {
+  display: block !important;
+}
+
+/* Ensure the bottom buttons don't overlap with shifted content */
 @media (max-width: 768px) {
+  .fixed-bottom {
+    left: 60px;
+    right: 0;
+    width: auto;
+  }
+
   .todo-list-container {
     max-height: 300px;
   }
+
+  .navbar-custom-offcanvas {
+    width: 100% !important;
+  }
+
+  .content-shifted {
+    margin-left: 0;
+  }
+}
+
+/* Style for the logout button */
+.navbar-custom-offcanvas .btn-danger {
+  width: 100%;
 }
