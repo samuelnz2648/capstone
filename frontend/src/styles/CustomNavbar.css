@@ -1,0 +1,49 @@
+/* capstone/frontend/src/styles/CustomNavbar.css */
+
+.navbar-custom {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 60px;
+  width: 60px;
+  z-index: 1030;
+  background-color: transparent !important;
+}
+
+.navbar-custom .navbar-toggler {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  border: none;
+  padding: 0;
+}
+
+.navbar-custom-offcanvas {
+  width: 250px !important;
+}
+
+.content-shifted {
+  margin-left: 250px;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Make the toggle button always visible */
+.navbar-toggler {
+  display: block !important;
+}
+
+/* Style for the logout button */
+.navbar-custom-offcanvas .btn-danger {
+  width: 100%;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .navbar-custom-offcanvas {
+    width: 100% !important;
+  }
+
+  .content-shifted {
+    margin-left: 0;
+  }
+}

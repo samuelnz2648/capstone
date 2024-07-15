@@ -14,11 +14,8 @@ import {
   Alert,
   Modal,
   Spinner,
-  Navbar,
-  Nav,
-  Offcanvas,
 } from "react-bootstrap";
-import { List, X } from "react-bootstrap-icons";
+import CustomNavbar from "./CustomNavbar";
 
 const Dashboard = () => {
   const [todoListName, setTodoListName] = useState("");
@@ -27,8 +24,8 @@ const Dashboard = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showNavbar, setShowNavbar] = useState(false);
-  const { setTodos, setTodoListName: setContextTodoListName } = useContext(TodoContext);
+  const { setTodos, setTodoListName: setContextTodoListName } =
+    useContext(TodoContext);
   const { username, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -69,7 +66,7 @@ const Dashboard = () => {
       console.error("Error creating/loading the todo list:", error);
       setError(
         error.response?.data?.message ||
-        "Failed to create/load todo list. Please try again."
+          "Failed to create/load todo list. Please try again."
       );
     } finally {
       setIsLoading(false);
@@ -88,7 +85,7 @@ const Dashboard = () => {
         console.error("Error loading the todo list:", error);
         setError(
           error.response?.data?.message ||
-          "Failed to load todo list. Please try again."
+            "Failed to load todo list. Please try again."
         );
       } finally {
         setIsLoading(false);
@@ -110,7 +107,7 @@ const Dashboard = () => {
         console.error("Error deleting the todo list:", error);
         setError(
           error.response?.data?.message ||
-          "Failed to delete todo list. Please try again."
+            "Failed to delete todo list. Please try again."
         );
       } finally {
         setIsLoading(false);
@@ -118,44 +115,10 @@ const Dashboard = () => {
     }
   };
 
-  const handleNavbarToggle = () => setShowNavbar(!showNavbar);
-
-  const handleLogout = () => {
-    logout();
-    setShowNavbar(false);
-    navigate("/");
-  };
-
   return (
     <div className="d-flex">
-      <Navbar expand={false} className="navbar-custom" variant="light">
-        <Container fluid className="p-0">
-          <Navbar.Toggle onClick={handleNavbarToggle} className="border-0">
-            {showNavbar ? <X size={30} /> : <List size={30} />}
-          </Navbar.Toggle>
-          <Navbar.Offcanvas
-            id="offcanvasNavbar"
-            aria-labelledby="offcanvasNavbarLabel"
-            placement="start"
-            show={showNavbar}
-            onHide={() => setShowNavbar(false)}
-            className="navbar-custom-offcanvas"
-          >
-            <Offcanvas.Header closeButton>
-              <Offcanvas.Title id="offcanvasNavbarLabel">Menu</Offcanvas.Title>
-            </Offcanvas.Header>
-            <Offcanvas.Body>
-              <Nav className="justify-content-end flex-grow-1 pe-3">
-                <Button variant="danger" onClick={handleLogout} className="mt-3">
-                  Logout
-                </Button>
-              </Nav>
-            </Offcanvas.Body>
-          </Navbar.Offcanvas>
-        </Container>
-      </Navbar>
-
-      <Container className={`mt-5 ${showNavbar ? 'content-shifted' : ''}`}>
+      <CustomNavbar onLogout={logout} />
+      <Container className="mt-5">
         <Row className="justify-content-md-center">
           <Col md={6}>
             <h1 className="text-center">{`Welcome ${username}`}</h1>
@@ -238,7 +201,10 @@ const Dashboard = () => {
             Are you sure you want to delete the todo list "{selectedTodoList}"?
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => setShowDeleteModal(false)}
+            >
               Cancel
             </Button>
             <Button variant="danger" onClick={handleDelete}>

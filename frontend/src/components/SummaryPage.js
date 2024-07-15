@@ -1,27 +1,16 @@
 // capstone/frontend/src/components/SummaryPage.js
 
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { TodoContext } from "../context/TodoContext";
 import { AuthContext } from "../context/AuthContext";
-import {
-  Container,
-  Button,
-  Row,
-  Col,
-  ListGroup,
-  Badge,
-  Navbar,
-  Nav,
-  Offcanvas,
-} from "react-bootstrap";
-import { List, X } from "react-bootstrap-icons";
+import { Container, Button, Row, Col, ListGroup, Badge } from "react-bootstrap";
+import CustomNavbar from "./CustomNavbar";
 
 const SummaryPage = () => {
   const { todos, todoListName } = useContext(TodoContext);
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [showNavbar, setShowNavbar] = useState(false);
 
   const { completedTasks, incompleteTasks } = useMemo(() => {
     const completed = todos.filter((todo) => todo.completed);
@@ -30,14 +19,6 @@ const SummaryPage = () => {
   }, [todos]);
 
   const handleStartOver = () => navigate("/dashboard");
-
-  const handleNavbarToggle = () => setShowNavbar(!showNavbar);
-
-  const handleLogout = () => {
-    logout();
-    setShowNavbar(false);
-    navigate("/");
-  };
 
   const renderTaskList = (tasks, badgeText, badgeVariant) => (
     <ListGroup className="mb-4">
@@ -65,41 +46,8 @@ const SummaryPage = () => {
 
   return (
     <div className="d-flex">
-      <Navbar expand={false} className="navbar-custom" variant="light">
-        <Container fluid className="p-0">
-          <Navbar.Toggle onClick={handleNavbarToggle} className="border-0">
-            {showNavbar ? <X size={30} /> : <List size={30} />}
-          </Navbar.Toggle>
-          <Navbar.Offcanvas
-            id="offcanvasNavbar"
-            aria-labelledby="offcanvasNavbarLabel"
-            placement="start"
-            show={showNavbar}
-            onHide={() => setShowNavbar(false)}
-            className="navbar-custom-offcanvas"
-          >
-            <Offcanvas.Header closeButton>
-              <Offcanvas.Title id="offcanvasNavbarLabel">Menu</Offcanvas.Title>
-            </Offcanvas.Header>
-            <Offcanvas.Body>
-              <Nav className="justify-content-end flex-grow-1 pe-3">
-                <Button
-                  variant="danger"
-                  onClick={handleLogout}
-                  className="mt-3"
-                >
-                  Logout
-                </Button>
-              </Nav>
-            </Offcanvas.Body>
-          </Navbar.Offcanvas>
-        </Container>
-      </Navbar>
-
-      <Container
-        className={`mt-5 ${showNavbar ? "content-shifted" : ""}`}
-        style={{ paddingBottom: "80px" }}
-      >
+      <CustomNavbar onLogout={logout} />
+      <Container className="mt-5" style={{ paddingBottom: "80px" }}>
         <h1 className="text-center mb-4">Summary: {todoListName}</h1>
         <Row>
           <Col md={6}>

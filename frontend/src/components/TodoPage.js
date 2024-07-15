@@ -21,11 +21,8 @@ import {
   Alert,
   Modal,
   Spinner,
-  Navbar,
-  Nav,
-  Offcanvas,
 } from "react-bootstrap";
-import { List, X } from "react-bootstrap-icons";
+import CustomNavbar from "./CustomNavbar";
 import { debounce } from "lodash";
 import "../styles/TodoPage.css";
 
@@ -38,7 +35,6 @@ const TodoPage = () => {
   const [sortBy, setSortBy] = useState("default");
   const [filterCompleted, setFilterCompleted] = useState("all");
   const [showButtons, setShowButtons] = useState(true);
-  const [showNavbar, setShowNavbar] = useState(false);
   const { todos, setTodos, todoListName } = useContext(TodoContext);
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -142,51 +138,10 @@ const TodoPage = () => {
     updateTodoList(newTodos);
   };
 
-  const handleNavbarToggle = () => setShowNavbar(!showNavbar);
-
-  const handleLogout = () => {
-    logout();
-    setShowNavbar(false);
-    navigate("/");
-  };
-
   return (
     <div className="d-flex">
-      <Navbar expand={false} className="navbar-custom" variant="light">
-        <Container fluid className="p-0">
-          <Navbar.Toggle onClick={handleNavbarToggle} className="border-0">
-            {showNavbar ? <X size={30} /> : <List size={30} />}
-          </Navbar.Toggle>
-          <Navbar.Offcanvas
-            id="offcanvasNavbar"
-            aria-labelledby="offcanvasNavbarLabel"
-            placement="start"
-            show={showNavbar}
-            onHide={() => setShowNavbar(false)}
-            className="navbar-custom-offcanvas"
-          >
-            <Offcanvas.Header closeButton>
-              <Offcanvas.Title id="offcanvasNavbarLabel">Menu</Offcanvas.Title>
-            </Offcanvas.Header>
-            <Offcanvas.Body>
-              <Nav className="justify-content-end flex-grow-1 pe-3">
-                <Button
-                  variant="danger"
-                  onClick={handleLogout}
-                  className="mt-3"
-                >
-                  Logout
-                </Button>
-              </Nav>
-            </Offcanvas.Body>
-          </Navbar.Offcanvas>
-        </Container>
-      </Navbar>
-
-      <Container
-        className={`mt-5 ${showNavbar ? "content-shifted" : ""}`}
-        style={{ paddingBottom: "120px" }}
-      >
+      <CustomNavbar onLogout={logout} />
+      <Container className="mt-5" style={{ paddingBottom: "120px" }}>
         <h1 className="text-center mb-4">{todoListName}</h1>
         {error && (
           <Alert variant="danger" onClose={() => setError("")} dismissible>
