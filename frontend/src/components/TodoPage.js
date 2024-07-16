@@ -216,6 +216,9 @@ const TodoPage = () => {
           }`}
           style={{
             transition: "opacity 0.3s ease-in-out",
+            left: 0,
+            right: 0,
+            width: '100%',
           }}
         >
           <Container>

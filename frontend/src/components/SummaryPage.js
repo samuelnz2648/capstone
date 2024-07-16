@@ -76,7 +76,10 @@ const SummaryPage = () => {
         </Row>
       </Container>
 
-      <div className="fixed-bottom bg-white py-3">
+      <div
+        className="fixed-bottom bg-white py-3"
+        style={{ left: 0, right: 0, width: "100%" }}
+      >
         <Container>
           <Row>
             <Col>
