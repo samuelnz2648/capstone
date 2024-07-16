@@ -24,6 +24,7 @@ const Dashboard = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const { setTodos, setTodoListName: setContextTodoListName } =
     useContext(TodoContext);
   const { username, logout } = useContext(AuthContext);
@@ -117,8 +118,11 @@ const Dashboard = () => {
 
   return (
     <div className="d-flex">
-      <CustomNavbar onLogout={logout} />
-      <Container className="mt-5">
+      <CustomNavbar
+        onLogout={logout}
+        onNavbarToggle={(isOpen) => setIsNavbarOpen(isOpen)}
+      />
+      <Container className={`mt-5 ${isNavbarOpen ? "content-shifted" : ""}`}>
         <Row className="justify-content-md-center">
           <Col md={6}>
             <h1 className="text-center">{`Welcome ${username}`}</h1>

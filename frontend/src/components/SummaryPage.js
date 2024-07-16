@@ -1,6 +1,6 @@
 // capstone/frontend/src/components/SummaryPage.js
 
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TodoContext } from "../context/TodoContext";
 import { AuthContext } from "../context/AuthContext";
@@ -11,6 +11,7 @@ const SummaryPage = () => {
   const { todos, todoListName } = useContext(TodoContext);
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [isNavbarOpen, setIsNavbarOpen] = useState(false);
 
   const { completedTasks, incompleteTasks } = useMemo(() => {
     const completed = todos.filter((todo) => todo.completed);
@@ -46,8 +47,14 @@ const SummaryPage = () => {
 
   return (
     <div className="d-flex">
-      <CustomNavbar onLogout={logout} />
-      <Container className="mt-5" style={{ paddingBottom: "80px" }}>
+      <CustomNavbar
+        onLogout={logout}
+        onNavbarToggle={(isOpen) => setIsNavbarOpen(isOpen)}
+      />
+      <Container
+        className={`mt-5 ${isNavbarOpen ? "content-shifted" : ""}`}
+        style={{ paddingBottom: "80px" }}
+      >
         <h1 className="text-center mb-4">Summary: {todoListName}</h1>
         <Row>
           <Col md={6}>

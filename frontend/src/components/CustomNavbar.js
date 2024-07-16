@@ -1,22 +1,30 @@
 // capstone/frontend/src/components/CustomNavbar.js
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar, Container, Nav, Offcanvas, Button } from "react-bootstrap";
 import { List, X } from "react-bootstrap-icons";
 import "../styles/CustomNavbar.css";
 
-const CustomNavbar = ({ onLogout }) => {
+const CustomNavbar = ({ onLogout, onNavbarToggle }) => {
   const [showNavbar, setShowNavbar] = useState(false);
   const navigate = useNavigate();
 
-  const handleNavbarToggle = () => setShowNavbar(!showNavbar);
+  const handleNavbarToggle = () => {
+    const newShowNavbar = !showNavbar;
+    setShowNavbar(newShowNavbar);
+    onNavbarToggle(newShowNavbar);
+  };
 
   const handleLogout = () => {
     onLogout();
     setShowNavbar(false);
     navigate("/");
   };
+
+  useEffect(() => {
+    onNavbarToggle(showNavbar);
+  }, [showNavbar, onNavbarToggle]);
 
   return (
     <Navbar expand={false} className="navbar-custom" variant="light">
@@ -29,7 +37,7 @@ const CustomNavbar = ({ onLogout }) => {
           aria-labelledby="offcanvasNavbarLabel"
           placement="start"
           show={showNavbar}
-          onHide={() => setShowNavbar(false)}
+          onHide={() => handleNavbarToggle()}
           className="navbar-custom-offcanvas"
         >
           <Offcanvas.Header closeButton>

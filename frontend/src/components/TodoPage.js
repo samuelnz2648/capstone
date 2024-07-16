@@ -35,6 +35,7 @@ const TodoPage = () => {
   const [sortBy, setSortBy] = useState("default");
   const [filterCompleted, setFilterCompleted] = useState("all");
   const [showButtons, setShowButtons] = useState(true);
+  const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const { todos, setTodos, todoListName } = useContext(TodoContext);
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -140,8 +141,14 @@ const TodoPage = () => {
 
   return (
     <div className="d-flex">
-      <CustomNavbar onLogout={logout} />
-      <Container className="mt-5" style={{ paddingBottom: "120px" }}>
+      <CustomNavbar
+        onLogout={logout}
+        onNavbarToggle={(isOpen) => setIsNavbarOpen(isOpen)}
+      />
+      <Container
+        className={`mt-5 ${isNavbarOpen ? "content-shifted" : ""}`}
+        style={{ paddingBottom: "120px" }}
+      >
         <h1 className="text-center mb-4">{todoListName}</h1>
         {error && (
           <Alert variant="danger" onClose={() => setError("")} dismissible>
