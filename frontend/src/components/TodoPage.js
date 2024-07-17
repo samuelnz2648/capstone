@@ -41,7 +41,6 @@ const TodoPage = () => {
     error,
     setError,
     isLoading,
-    setLoading,
   } = useContext(TodoContext);
 
   const { logout } = useContext(AuthContext);
