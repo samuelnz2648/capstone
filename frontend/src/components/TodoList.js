@@ -6,15 +6,10 @@ import TodoItem from "./TodoItem";
 import { ListGroup } from "react-bootstrap";
 import { FixedSizeList as List } from "react-window";
 
-const TodoList = memo(({ todos, updateTodo, deleteTodo, completeTodo }) => {
+const TodoList = memo(({ todos }) => {
   const Row = ({ index, style }) => (
     <div style={style}>
-      <TodoItem
-        todo={todos[index]}
-        updateTodo={updateTodo}
-        deleteTodo={deleteTodo}
-        completeTodo={completeTodo}
-      />
+      <TodoItem todo={todos[index]} />
     </div>
   );
 
@@ -39,9 +34,6 @@ TodoList.propTypes = {
       completed: PropTypes.bool.isRequired,
     })
   ).isRequired,
-  updateTodo: PropTypes.func.isRequired,
-  deleteTodo: PropTypes.func.isRequired,
-  completeTodo: PropTypes.func.isRequired,
 };
 
 TodoList.displayName = "TodoList";

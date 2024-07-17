@@ -1,13 +1,15 @@
 // capstone/frontend/src/components/TodoItem.js
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import PropTypes from "prop-types";
 import { ListGroup, Form, Button, InputGroup } from "react-bootstrap";
 import { Pencil, Trash, Check, X } from "react-bootstrap-icons";
+import { TodoContext } from "../context/TodoContext";
 
-const TodoItem = ({ todo, updateTodo, deleteTodo, completeTodo }) => {
+const TodoItem = ({ todo }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTask, setEditedTask] = useState(todo.task);
+  const { updateTodo, deleteTodo, completeTodo } = useContext(TodoContext);
 
   const handleUpdate = () => {
     if (editedTask.trim()) {
@@ -91,9 +93,6 @@ TodoItem.propTypes = {
     task: PropTypes.string.isRequired,
     completed: PropTypes.bool.isRequired,
   }).isRequired,
-  updateTodo: PropTypes.func.isRequired,
-  deleteTodo: PropTypes.func.isRequired,
-  completeTodo: PropTypes.func.isRequired,
 };
 
 export default React.memo(TodoItem);

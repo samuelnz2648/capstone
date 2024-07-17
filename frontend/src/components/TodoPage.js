@@ -8,7 +8,6 @@ import React, {
   useEffect,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../utils/api";
 import TodoList from "./TodoList";
 import { TodoContext } from "../context/TodoContext";
 import { AuthContext } from "../context/AuthContext";
@@ -23,51 +22,30 @@ import {
   Spinner,
 } from "react-bootstrap";
 import CustomNavbar from "./CustomNavbar";
-import { debounce } from "lodash";
 import "../styles/TodoPage.css";
 
 const TodoPage = () => {
   const [task, setTask] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [todoToDelete, setTodoToDelete] = useState(null);
   const [sortBy, setSortBy] = useState("default");
   const [filterCompleted, setFilterCompleted] = useState("all");
   const [showButtons, setShowButtons] = useState(true);
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
-  const { todos, setTodos, todoListName } = useContext(TodoContext);
+
+  const {
+    todos,
+    todoListName,
+    addTodo,
+    deleteTodo,
+    error,
+    setError,
+    isLoading,
+    setLoading,
+  } = useContext(TodoContext);
+
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
-
-  const debouncedApiCall = useMemo(
-    () =>
-      debounce(async (newTodos) => {
-        setIsLoading(true);
-        try {
-          await api.put(`/todos/${encodeURIComponent(todoListName)}`, {
-            todos: newTodos,
-          });
-          setTodos(newTodos);
-        } catch (error) {
-          console.error(
-            "Error updating todo list:",
-            error.response?.data || error.message
-          );
-          setError("Failed to update todo list. Please try again.");
-        } finally {
-          setIsLoading(false);
-        }
-      }, 500),
-    [todoListName, setTodos]
-  );
-
-  const updateTodoList = useCallback(
-    (newTodos) => {
-      debouncedApiCall(newTodos);
-    },
-    [debouncedApiCall]
-  );
 
   useEffect(() => {
     let timeout;
@@ -83,6 +61,29 @@ const TodoPage = () => {
       clearTimeout(timeout);
     };
   }, []);
+
+  const handleAddTodo = useCallback(
+    (event) => {
+      event.preventDefault();
+      if (task.trim() === "") return;
+      const newTodo = {
+        id: Date.now(),
+        task: task.trim(),
+        completed: false,
+      };
+      addTodo(newTodo);
+      setTask("");
+    },
+    [task, addTodo]
+  );
+
+  const confirmDeleteTodo = useCallback(() => {
+    if (todoToDelete) {
+      deleteTodo(todoToDelete);
+    }
+    setShowDeleteModal(false);
+    setTodoToDelete(null);
+  }, [todoToDelete, deleteTodo]);
 
   const filteredAndSortedTodos = useMemo(() => {
     let filteredTodos = todos;
@@ -100,44 +101,6 @@ const TodoPage = () => {
     }
     return filteredTodos;
   }, [todos, sortBy, filterCompleted]);
-
-  const handleAddTodo = (event) => {
-    event.preventDefault();
-    if (task.trim() === "") return;
-    const newTodo = {
-      id: Date.now(),
-      task: task.trim(),
-      completed: false,
-    };
-    const newTodos = [...todos, newTodo];
-    updateTodoList(newTodos);
-    setTask("");
-  };
-
-  const handleUpdateTodo = (id, updatedTask) => {
-    const newTodos = todos.map((todo) =>
-      todo.id === id ? { ...todo, task: updatedTask } : todo
-    );
-    updateTodoList(newTodos);
-  };
-
-  const handleDeleteTodo = (id) => {
-    setTodoToDelete(id);
-    setShowDeleteModal(true);
-  };
-
-  const confirmDeleteTodo = () => {
-    const newTodos = todos.filter((todo) => todo.id !== todoToDelete);
-    updateTodoList(newTodos);
-    setShowDeleteModal(false);
-  };
-
-  const handleCompleteTodo = (id) => {
-    const newTodos = todos.map((todo) =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    );
-    updateTodoList(newTodos);
-  };
 
   return (
     <div className="d-flex">
@@ -199,12 +162,7 @@ const TodoPage = () => {
               </Spinner>
             ) : (
               <div className="todo-list-container">
-                <TodoList
-                  todos={filteredAndSortedTodos}
-                  updateTodo={handleUpdateTodo}
-                  deleteTodo={handleDeleteTodo}
-                  completeTodo={handleCompleteTodo}
-                />
+                <TodoList todos={filteredAndSortedTodos} />
               </div>
             )}
           </Col>
@@ -218,7 +176,7 @@ const TodoPage = () => {
             transition: "opacity 0.3s ease-in-out",
             left: 0,
             right: 0,
-            width: '100%',
+            width: "100%",
           }}
         >
           <Container>
