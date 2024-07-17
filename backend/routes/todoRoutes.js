@@ -66,10 +66,21 @@ router.post("/:todoListName", authMiddleware, async (req, res) => {
       UserId: user.id,
     });
 
-    res
-      .status(201)
-      .json({ message: `Todo list ${decodedTodoListName} created.` });
+    res.status(201).json({
+      message: `Todo list ${decodedTodoListName} created.`,
+      todoList: {
+        id: newList.id,
+        name: newList.name,
+        createdAt: newList.createdAt,
+        updatedAt: newList.updatedAt,
+      },
+    });
   } catch (error) {
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res
+        .status(400)
+        .json({ message: "A todo list with this name already exists." });
+    }
     res.status(500).json({ message: "Server error.", error: error.message });
   }
 });
