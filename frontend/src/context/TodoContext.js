@@ -80,14 +80,6 @@ export const TodoProvider = ({ children }) => {
     dispatch({ type: "SET_ERROR", payload: error });
   }, []);
 
-  const clearError = useCallback(() => {
-    dispatch({ type: "CLEAR_ERROR" });
-  }, []);
-
-  const setLoading = useCallback((isLoading) => {
-    dispatch({ type: "SET_LOADING", payload: isLoading });
-  }, []);
-
   const contextValue = useMemo(
     () => ({
       ...state,
@@ -98,8 +90,6 @@ export const TodoProvider = ({ children }) => {
       deleteTodo,
       completeTodo,
       setError,
-      clearError,
-      setLoading,
     }),
     [
       state,
@@ -110,8 +100,6 @@ export const TodoProvider = ({ children }) => {
       deleteTodo,
       completeTodo,
       setError,
-      clearError,
-      setLoading,
     ]
   );
 
