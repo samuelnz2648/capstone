@@ -6,12 +6,12 @@ const authMiddleware = require("../middleware/authMiddleware");
 const TodoList = require("../models/TodoList");
 const Todo = require("../models/Todo");
 const User = require("../models/User");
-const { Op } = require("sequelize");
+const todoItemRoutes = require("./todoItemRoutes");
 
 // Helper function to find todo list
 const findTodoList = async (username, todoListName) => {
   return await TodoList.findOne({
-    where: { name: { [Op.like]: todoListName } },
+    where: { name: todoListName },
     include: [{ model: User, where: { username } }, { model: Todo }],
   });
 };
@@ -85,86 +85,6 @@ router.post("/:todoListName", authMiddleware, async (req, res) => {
   }
 });
 
-// PUT (update) todo list
-router.put("/:todoListName", authMiddleware, async (req, res) => {
-  try {
-    const decodedTodoListName = decodeURIComponent(req.params.todoListName);
-
-    let todoList = await findTodoList(req.user.username, decodedTodoListName);
-
-    if (!todoList) {
-      const user = await User.findOne({
-        where: { username: req.user.username },
-      });
-      if (!user) {
-        return res.status(404).json({ message: "User not found." });
-      }
-      todoList = await TodoList.create({
-        name: decodedTodoListName,
-        UserId: user.id,
-      });
-    }
-
-    if (!Array.isArray(req.body.todos)) {
-      return res.status(400).json({ message: "Invalid todos data." });
-    }
-
-    // Get existing todos
-    const existingTodos = await Todo.findAll({
-      where: { TodoListId: todoList.id },
-    });
-
-    // Create a map for quick lookup
-    const existingTodosMap = new Map(
-      existingTodos.map((todo) => [todo.id, todo])
-    );
-
-    // Process incoming todos
-    const todosToCreate = [];
-    const todosToUpdate = [];
-
-    req.body.todos.forEach((incomingTodo) => {
-      if (incomingTodo.id && existingTodosMap.has(incomingTodo.id)) {
-        // Update existing todo
-        todosToUpdate.push(incomingTodo);
-        existingTodosMap.delete(incomingTodo.id);
-      } else {
-        // New todo to create
-        todosToCreate.push({
-          task: incomingTodo.task,
-          completed: incomingTodo.completed,
-          TodoListId: todoList.id,
-        });
-      }
-    });
-
-    // Any todos left in existingTodosMap should be deleted
-    const todosToDelete = Array.from(existingTodosMap.keys());
-
-    // Perform database operations
-    await Promise.all([
-      Todo.bulkCreate(todosToCreate, { returning: true }),
-      ...todosToUpdate.map((todo) =>
-        Todo.update(
-          { task: todo.task, completed: todo.completed },
-          { where: { id: todo.id } }
-        )
-      ),
-      Todo.destroy({ where: { id: todosToDelete } }),
-    ]);
-
-    res
-      .status(200)
-      .json({ message: `Todo list ${decodedTodoListName} updated.` });
-  } catch (error) {
-    res.status(500).json({
-      message: "Server error.",
-      error: error.message,
-      stack: error.stack,
-    });
-  }
-});
-
 // DELETE todo list
 router.delete("/:todoListName", authMiddleware, async (req, res) => {
   try {
@@ -182,5 +102,15 @@ router.delete("/:todoListName", authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Server error.", error: error.message });
   }
 });
+
+// Use todoItemRoutes for individual todo items
+router.use(
+  "/:todoListName/todos",
+  (req, res, next) => {
+    req.todoListName = req.params.todoListName;
+    next();
+  },
+  todoItemRoutes
+);
 
 module.exports = router;

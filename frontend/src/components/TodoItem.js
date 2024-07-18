@@ -13,7 +13,7 @@ const TodoItem = ({ todo }) => {
 
   const handleUpdate = () => {
     if (editedTask.trim()) {
-      updateTodo(todo.id, editedTask);
+      updateTodo(todo.id, { task: editedTask.trim() });
       setIsEditing(false);
     }
   };

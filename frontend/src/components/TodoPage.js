@@ -37,7 +37,10 @@ const TodoPage = () => {
     todos,
     todoListName,
     addTodo,
+    updateTodo,
     deleteTodo,
+    completeTodo,
+    fetchTodos,
     error,
     setError,
     isLoading,
@@ -45,6 +48,10 @@ const TodoPage = () => {
 
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchTodos();
+  }, [fetchTodos]);
 
   useEffect(() => {
     let timeout;
@@ -66,7 +73,6 @@ const TodoPage = () => {
       event.preventDefault();
       if (task.trim() === "") return;
       const newTodo = {
-        id: Date.now(),
         task: task.trim(),
         completed: false,
       };
@@ -74,6 +80,20 @@ const TodoPage = () => {
       setTask("");
     },
     [task, addTodo]
+  );
+
+  const handleUpdateTodo = useCallback(
+    (id, updatedTask) => {
+      updateTodo(id, { task: updatedTask });
+    },
+    [updateTodo]
+  );
+
+  const handleCompleteTodo = useCallback(
+    (id) => {
+      completeTodo(id);
+    },
+    [completeTodo]
   );
 
   const confirmDeleteTodo = useCallback(() => {
@@ -161,7 +181,15 @@ const TodoPage = () => {
               </Spinner>
             ) : (
               <div className="todo-list-container">
-                <TodoList todos={filteredAndSortedTodos} />
+                <TodoList
+                  todos={filteredAndSortedTodos}
+                  onUpdate={handleUpdateTodo}
+                  onDelete={(id) => {
+                    setTodoToDelete(id);
+                    setShowDeleteModal(true);
+                  }}
+                  onComplete={handleCompleteTodo}
+                />
               </div>
             )}
           </Col>
