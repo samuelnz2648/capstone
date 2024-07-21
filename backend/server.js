@@ -1,4 +1,5 @@
 // capstone/backend/server.js
+
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -7,6 +8,7 @@ const morgan = require("morgan");
 const sequelize = require("./config/database");
 const todoRoutes = require("./routes/todoRoutes");
 const userRoutes = require("./routes/userRoutes");
+const todoItemRoutes = require("./routes/todoItemRoutes");
 
 // Import associations
 require("./models/associations");
@@ -22,6 +24,7 @@ app.use(express.json());
 // Routes
 app.use("/api/todos", todoRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/todos/:todoListName/todos", todoItemRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -6,7 +6,6 @@ const authMiddleware = require("../middleware/authMiddleware");
 const TodoList = require("../models/TodoList");
 const Todo = require("../models/Todo");
 const User = require("../models/User");
-const todoItemRoutes = require("./todoItemRoutes");
 
 // Helper function to find todo list
 const findTodoList = async (username, todoListName) => {
@@ -102,15 +101,5 @@ router.delete("/:todoListName", authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Server error.", error: error.message });
   }
 });
-
-// Use todoItemRoutes for individual todo items
-router.use(
-  "/:todoListName/todos",
-  (req, res, next) => {
-    req.todoListName = req.params.todoListName;
-    next();
-  },
-  todoItemRoutes
-);
 
 module.exports = router;

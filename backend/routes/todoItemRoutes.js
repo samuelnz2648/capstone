@@ -7,6 +7,12 @@ const TodoList = require("../models/TodoList");
 const Todo = require("../models/Todo");
 const User = require("../models/User");
 
+// Middleware to set todoListName
+router.use((req, res, next) => {
+  req.todoListName = req.params.todoListName;
+  next();
+});
+
 // Helper function to find todo list
 const findTodoList = async (username, todoListName) => {
   return await TodoList.findOne({
