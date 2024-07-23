@@ -6,15 +6,25 @@ export const initialState = {
   error: null,
 };
 
+export const todoActions = {
+  SET_TODOS: "SET_TODOS",
+  SET_TODOLISTNAME: "SET_TODOLISTNAME",
+  ADD_TODO: "ADD_TODO",
+  UPDATE_TODO: "UPDATE_TODO",
+  DELETE_TODO: "DELETE_TODO",
+  TOGGLE_TODO: "TOGGLE_TODO",
+  SET_ERROR: "SET_ERROR",
+};
+
 const todoReducer = (state, action) => {
   switch (action.type) {
-    case "SET_TODOS":
+    case todoActions.SET_TODOS:
       return { ...state, todos: action.payload };
-    case "SET_TODOLISTNAME":
+    case todoActions.SET_TODOLISTNAME:
       return { ...state, todoListName: action.payload };
-    case "ADD_TODO":
+    case todoActions.ADD_TODO:
       return { ...state, todos: [...state.todos, action.payload] };
-    case "UPDATE_TODO":
+    case todoActions.UPDATE_TODO:
       return {
         ...state,
         todos: state.todos.map((todo) =>
@@ -23,12 +33,12 @@ const todoReducer = (state, action) => {
             : todo
         ),
       };
-    case "DELETE_TODO":
+    case todoActions.DELETE_TODO:
       return {
         ...state,
         todos: state.todos.filter((todo) => todo.id !== action.payload),
       };
-    case "TOGGLE_TODO":
+    case todoActions.TOGGLE_TODO:
       return {
         ...state,
         todos: state.todos.map((todo) =>
@@ -37,7 +47,7 @@ const todoReducer = (state, action) => {
             : todo
         ),
       };
-    case "SET_ERROR":
+    case todoActions.SET_ERROR:
       return { ...state, error: action.payload };
     default:
       return state;

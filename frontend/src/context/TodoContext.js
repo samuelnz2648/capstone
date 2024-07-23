@@ -1,7 +1,7 @@
 // capstone/frontend/src/context/TodoContext.js
 
 import React, { createContext, useReducer, useCallback, useMemo } from "react";
-import todoReducer, { initialState } from "./TodoReducer";
+import todoReducer, { initialState, todoActions } from "./TodoReducer";
 import api from "../utils/api";
 
 export const TodoContext = createContext();
@@ -9,12 +9,16 @@ export const TodoContext = createContext();
 export const TodoProvider = ({ children }) => {
   const [state, dispatch] = useReducer(todoReducer, initialState);
 
+  const setError = useCallback((error) => {
+    dispatch({ type: todoActions.SET_ERROR, payload: error });
+  }, []);
+
   const setTodos = useCallback((todos) => {
-    dispatch({ type: "SET_TODOS", payload: todos });
+    dispatch({ type: todoActions.SET_TODOS, payload: todos });
   }, []);
 
   const setTodoListName = useCallback((todoListName) => {
-    dispatch({ type: "SET_TODOLISTNAME", payload: todoListName });
+    dispatch({ type: todoActions.SET_TODOLISTNAME, payload: todoListName });
   }, []);
 
   const addTodo = useCallback(
@@ -24,13 +28,13 @@ export const TodoProvider = ({ children }) => {
           `/todos/${state.todoListName}/todos`,
           todo
         );
-        dispatch({ type: "ADD_TODO", payload: response.data });
+        dispatch({ type: todoActions.ADD_TODO, payload: response.data });
       } catch (error) {
         console.error("Error adding todo:", error);
         setError("Failed to add todo. Please try again.");
       }
     },
-    [state.todoListName]
+    [state.todoListName, setError]
   );
 
   const updateTodo = useCallback(
@@ -41,7 +45,7 @@ export const TodoProvider = ({ children }) => {
           updatedTodo
         );
         dispatch({
-          type: "UPDATE_TODO",
+          type: todoActions.UPDATE_TODO,
           payload: { id, updatedTodo: response.data },
         });
       } catch (error) {
@@ -49,20 +53,20 @@ export const TodoProvider = ({ children }) => {
         setError("Failed to update todo. Please try again.");
       }
     },
-    [state.todoListName]
+    [state.todoListName, setError]
   );
 
   const deleteTodo = useCallback(
     async (id) => {
       try {
         await api.delete(`/todos/${state.todoListName}/todos/${id}`);
-        dispatch({ type: "DELETE_TODO", payload: id });
+        dispatch({ type: todoActions.DELETE_TODO, payload: id });
       } catch (error) {
         console.error("Error deleting todo:", error);
         setError("Failed to delete todo. Please try again.");
       }
     },
-    [state.todoListName]
+    [state.todoListName, setError]
   );
 
   const completeTodo = useCallback(
@@ -78,7 +82,7 @@ export const TodoProvider = ({ children }) => {
             }
           );
           dispatch({
-            type: "UPDATE_TODO",
+            type: todoActions.UPDATE_TODO,
             payload: { id, updatedTodo: response.data },
           });
         }
@@ -87,7 +91,7 @@ export const TodoProvider = ({ children }) => {
         setError("Failed to update todo status. Please try again.");
       }
     },
-    [state.todos, state.todoListName]
+    [state.todos, state.todoListName, setError]
   );
 
   const fetchTodos = useCallback(async () => {
@@ -102,11 +106,7 @@ export const TodoProvider = ({ children }) => {
       console.error("Error fetching todos:", error);
       setError("Failed to fetch todos. Please try again.");
     }
-  }, [state.todoListName, setTodos]);
-
-  const setError = useCallback((error) => {
-    dispatch({ type: "SET_ERROR", payload: error });
-  }, []);
+  }, [state.todoListName, setTodos, setError]);
 
   const contextValue = useMemo(
     () => ({
