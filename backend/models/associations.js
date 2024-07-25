@@ -6,6 +6,10 @@ const Todo = require("./Todo");
 
 User.hasMany(TodoList);
 TodoList.belongsTo(User);
+
+User.hasMany(Todo);
+Todo.belongsTo(User);
+
 TodoList.hasMany(Todo);
 Todo.belongsTo(TodoList);
 

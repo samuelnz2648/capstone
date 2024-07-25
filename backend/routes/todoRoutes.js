@@ -11,7 +11,10 @@ const User = require("../models/User");
 const findTodoList = async (username, todoListName) => {
   return await TodoList.findOne({
     where: { name: todoListName },
-    include: [{ model: User, where: { username } }, { model: Todo }],
+    include: [
+      { model: User, where: { username } },
+      { model: Todo, where: { UserId: User.id } }
+    ],
   });
 };
 

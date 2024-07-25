@@ -44,7 +44,11 @@ router.post("/", authMiddleware, async (req, res) => {
     if (!todoList) {
       return res.status(404).json({ message: "Todo list not found." });
     }
-    const newTodo = await Todo.create({ task, TodoListId: todoList.id });
+    const newTodo = await Todo.create({ 
+      task, 
+      TodoListId: todoList.id,
+      UserId: req.user.userId  // Add the UserId when creating a new todo
+    });
     res.status(201).json(newTodo);
   } catch (error) {
     res.status(500).json({ message: "Server error.", error: error.message });
@@ -62,7 +66,7 @@ router.put("/:todoId", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Todo list not found." });
     }
     const todo = await Todo.findOne({
-      where: { id: todoId, TodoListId: todoList.id },
+      where: { id: todoId, TodoListId: todoList.id, UserId: req.user.userId },
     });
     if (!todo) {
       return res.status(404).json({ message: "Todo item not found." });
@@ -84,7 +88,7 @@ router.delete("/:todoId", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Todo list not found." });
     }
     const todo = await Todo.findOne({
-      where: { id: todoId, TodoListId: todoList.id },
+      where: { id: todoId, TodoListId: todoList.id, UserId: req.user.userId },
     });
     if (!todo) {
       return res.status(404).json({ message: "Todo item not found." });

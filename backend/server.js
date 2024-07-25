@@ -5,7 +5,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
-const sequelize = require("./config/database");
+const { createDatabase, sequelize } = require("./config/database");
 const todoRoutes = require("./routes/todoRoutes");
 const userRoutes = require("./routes/userRoutes");
 const todoItemRoutes = require("./routes/todoItemRoutes");
@@ -16,8 +16,8 @@ require("./models/associations");
 const app = express();
 
 // Middleware
-app.use(helmet()); // Adds various HTTP headers for security
-app.use(morgan("dev")); // Logging middleware
+app.use(helmet());
+app.use(morgan("dev"));
 app.use(cors());
 app.use(express.json());
 
@@ -36,7 +36,8 @@ const PORT = process.env.PORT || 3001;
 
 const startServer = async () => {
   try {
-    await sequelize.sync({ alter: true });
+    await createDatabase();
+    await sequelize.sync({ alter: true }); // This will add the new UserId column
     console.log("Database synced");
 
     app.listen(PORT, () => {

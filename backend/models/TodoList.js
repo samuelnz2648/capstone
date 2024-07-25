@@ -1,7 +1,7 @@
 // capstone/backend/models/TodoList.js
 
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
+const { sequelize } = require("../config/database");
 
 const TodoList = sequelize.define(
   "TodoList",
@@ -13,7 +13,6 @@ const TodoList = sequelize.define(
         notEmpty: true,
       },
     },
-    // UserId is typically added automatically by Sequelize when associations are defined
   },
   {
     timestamps: true,

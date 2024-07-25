@@ -1,7 +1,7 @@
 // capstone/backend/models/Todo.js
 
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
+const { sequelize } = require("../config/database");
 
 const Todo = sequelize.define(
   "Todo",
@@ -17,12 +17,13 @@ const Todo = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    // TodoListId is typically added automatically by Sequelize when associations are defined
+    UserId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
-    // Add timestamps for better tracking
     timestamps: true,
-    // Ensure the table name doesn't get pluralized
     tableName: "Todos",
   }
 );
