@@ -9,12 +9,12 @@ const User = require("../models/User");
 
 // Helper function to find todo list
 const findTodoList = async (username, todoListName) => {
+  const user = await User.findOne({ where: { username } });
+  if (!user) return null;
+
   return await TodoList.findOne({
-    where: { name: todoListName },
-    include: [
-      { model: User, where: { username } },
-      { model: Todo, where: { UserId: User.id } }
-    ],
+    where: { name: todoListName, UserId: user.id },
+    include: [{ model: User }, { model: Todo }],
   });
 };
 
@@ -49,6 +49,7 @@ router.get("/:todoListName", authMiddleware, async (req, res) => {
 
     res.status(200).json(todoList.Todos);
   } catch (error) {
+    console.error("Error fetching todo list:", error);
     res.status(500).json({ message: "Server error.", error: error.message });
   }
 });
