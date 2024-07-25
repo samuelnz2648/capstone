@@ -40,7 +40,7 @@ const LoginPage = () => {
     <Container className="mt-5">
       <Row className="justify-content-md-center">
         <Col md={6}>
-          <h1 className="text-center mb-4">Welcome</h1>
+          <h1 className="text-center mb-4">Todo List Login</h1>
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleLogin}>
             <Form.Group className="mb-3" controlId="formUsername">
