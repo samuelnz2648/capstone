@@ -1,6 +1,7 @@
 // capstone/backend/routes/todoItemRoutes.js
 
 const express = require("express");
+
 const router = express.Router({ mergeParams: true });
 const authMiddleware = require("../middleware/authMiddleware");
 const TodoList = require("../models/TodoList");
@@ -44,10 +45,10 @@ router.post("/", authMiddleware, async (req, res) => {
     if (!todoList) {
       return res.status(404).json({ message: "Todo list not found." });
     }
-    const newTodo = await Todo.create({ 
-      task, 
+    const newTodo = await Todo.create({
+      task,
       TodoListId: todoList.id,
-      UserId: req.user.userId  // Add the UserId when creating a new todo
+      UserId: req.user.userId, // Add the UserId when creating a new todo
     });
     res.status(201).json(newTodo);
   } catch (error) {
@@ -71,13 +72,12 @@ router.put("/:todoId", authMiddleware, async (req, res) => {
     if (!todo) {
       return res.status(404).json({ message: "Todo item not found." });
     }
-    await todo.update({ task, completed });
-    res.status(200).json(todo);
+    const updatedTodo = await todo.update({ task, completed });
+    res.status(200).json(updatedTodo);
   } catch (error) {
     res.status(500).json({ message: "Server error.", error: error.message });
   }
 });
-
 // DELETE a todo item
 router.delete("/:todoId", authMiddleware, async (req, res) => {
   try {
