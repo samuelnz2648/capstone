@@ -48,7 +48,7 @@ router.post("/", authMiddleware, async (req, res) => {
     const newTodo = await Todo.create({
       task,
       TodoListId: todoList.id,
-      UserId: req.user.userId, // Add the UserId when creating a new todo
+      UserId: req.user.userId,
     });
     res.status(201).json(newTodo);
   } catch (error) {
